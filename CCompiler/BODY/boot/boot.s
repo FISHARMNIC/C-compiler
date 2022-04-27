@@ -35,9 +35,9 @@ _start:
   # asign current stack pointer location to stackTop
 	mov $stackTop, %esp
 	# call the kernel main source
-	.extern main
+	.extern _kernel_entry
 	# .extern _vga_entry
-	call main
+	call _kernel_entry
 
 	cli
 

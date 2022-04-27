@@ -54,7 +54,7 @@ global.evaluate = function (line) {
                         name: p1token().phrase,
                         value: n1token().phrase
                     })
-                } else if(p2token().phrase == "*") {
+                } else if (p2token().phrase == "*") {
                     function_createVariable({
                         type: p3token().phrase + "*",
                         name: p1token().phrase,
@@ -159,7 +159,7 @@ global.evaluate = function (line) {
                         name: n1token().phrase,
                     })
                 }
-            } else if(n1token().type == "assigned") {
+            } else if (n1token().type == "assigned") {
                 text_section.push(
                     `mov %edx, ${n1token().phrase}`,
                     `mov %edx, [%edx]`,
@@ -171,8 +171,115 @@ global.evaluate = function (line) {
                 }
                 line.splice(itemNo + 1, 1)
                 console.log("RIPBOZO", line)
-                
+
             }
+        }
+        /*
+        //else if (mathOperations.includes(token.phrase)) {
+        //     console.log("eval:", p1token().phrase, token.phrase, n1token().phrase)
+        //     switch(token.phrase) {
+        //         case "+":
+        //             text_section.push(
+        //                 `mov %eax, ${p1token().phrase}`,
+        //                 `add %eax, ${n1token().phrase}`,
+        //             )
+        //             break;
+        // case "-":
+        //     text_section.push(
+        //         `mov %eax, ${p1token().phrase}`,
+        //         `sub %eax, ${n1token().phrase}`,
+        //     )
+        //     break;
+        // case "/":
+        //     text_section.push(
+        //         `mov %eax, ${p1token().phrase}`,
+        //         `mov %ebx, ${n1token().phrase}`
+        //         `div %ebx, ${n1token().phrase}`,
+        //     )
+        //     break;
+        // case "x": // MAKE SYMBOL TABLE FOR STUPID POINTER IS MLT SIGN
+        //     text_section.push(
+        //         `mov %eax, ${p1token().phrase}`,
+        //         `mov %ebx, ${n1token().phrase}`
+        //         `mul %ebx, ${n1token().phrase}`,
+        //         )
+        //         break;
+        //     case "|":
+        //         break;
+        //     // ALSO SYMBOL TABLE FOR "AND"
+        // }
+        // text_section.push(`mov _mathResult, %eax`)
+        // line[itemNo - 1] = {phrase: "_mathResult", type: "assigned"}
+        // line.splice(itemNo, 2)
+        */
+        else if (token.phrase == "eq") { //evaluation
+            var scanPos = itemNo + 3
+            text_section.push(`\npush %eax`, `mov %eax, ${line[itemNo + 2].phrase}`)
+            while (line[scanPos].phrase != ")") {
+                var item = {
+                    current: line[scanPos].phrase,
+                    previous: line[scanPos - 1].phrase,//parseInt(code[itemNum - 1]) ? code[itemNum - 1] : `[${code[itemNum - 1]}]`,
+                    next: line[scanPos + 1].phrase//parseInt(code[itemNum + 1]) ? code[itemNum + 1] : `[${code[itemNum + 1]}]`
+                }
+                console.log("$$$$$$$", item)
+                text_section.push(...((inD) => {
+                    switch (inD.current) {
+                        case "+":
+                            return [`add %eax, ${inD.next}`]
+                        case "-":
+                            return [`sub %eax, ${inD.next}`]
+                        case "x":
+                            return [
+                                `push %ebx`,
+                                `mov %ebx, ${inD.next}`,
+                                `mul %ebx`,
+                                `pop %ebx`
+                            ]
+                        case "/":
+                            return [
+                                `push %ebx`,
+                                `mov %ebx, ${inD.next}`,
+                                `div %ebx`,
+                                `pop %ebx`
+                            ]
+                        case "%":
+                            return [
+                                `push %ebx`,
+                                `push %edx`,
+                                `mov %ebx, ${inD.next}`,
+                                `div %ebx`,
+                                `mov %eax, %edx`,
+                                `pop %edx`,
+                                `pop %ebx`
+                            ]
+                        case "|":
+                            return [
+                                `push %ebx`,
+                                `mov %ebx, ${inD.next}`,
+                                `or %eax, %ebx`,
+                                `pop %ebx`,
+                            ]
+                        case "<<":
+                            return [
+                                `push %ecx`,
+                                `mov %cl, ${inD.next}`,
+                                `shl %eax, %cl`,
+                                `pop %ecx`,
+                            ]
+                        case ">>":
+                            return [
+                                `push %ecx`,
+                                `mov %cl, ${inD.next}`,
+                                `shr %eax, %cl`,
+                                `pop %ecx`,
+                            ]
+                    }
+                })(item))
+                scanPos += 2;
+            }
+            text_section.push(`mov _mathResult, %eax`, `pop %eax\n`)
+            line[itemNo] = {phrase:"_mathResult", type:"assigned"}
+            line.splice(itemNo + 1, scanPos - itemNo)
         }
 
         //NEEDS TO BE AT THE END

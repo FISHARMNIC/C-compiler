@@ -1,0 +1,6 @@
+todo:
+
+- fix accessing arrays
+- add an unsafe quick evaluator
+- add casting
+- fix "*" and "&" not being implemented :(

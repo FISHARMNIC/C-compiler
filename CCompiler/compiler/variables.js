@@ -38,7 +38,7 @@ global.variableSizes = {
     "char": 1
 }
 global.mathOperations = [
-    "+","/","*","-"
+    "+","/","x","-"
 ]
 
 global.variables = {
