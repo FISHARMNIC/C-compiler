@@ -32,10 +32,14 @@ global.variableTypes = {
 
     "long": ".long",
     "long*":0,
+
+    "short": ".short",
+    "short*": 0
 }
 global.variableSizes = {
     "int": 4,
-    "char": 1
+    "char": 1,
+    "short": 2
 }
 global.mathOperations = [
     "+","/","x","-"

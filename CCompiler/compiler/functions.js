@@ -94,11 +94,18 @@ global.function_createFunction = function ({ name, parameters, returnType }) {
         for (i = 0; i < parameters.length; i += 2) {
             var type = parameters[i]
 
+            
+            var pointer = false
+            if(parameters[i + 1]== "*") {
+                pointer = true
+                i++
+            }
+
             var sname = `_${name}_${parameters[i + 1]}_`
             //var name = parameters[i + 1]
             if (isDefined(parameters[i + 1])) {
                 obuffer.push(sname)
-                function_createVariable({ name: sname, type, value: 0 })
+                function_createVariable({ name: sname, type, value: 0, pointer })
             }
         }
     }

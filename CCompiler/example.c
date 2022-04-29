@@ -14,7 +14,7 @@ void testFunction(int num1, int num2, int num3)
     put_int(num3);
 }
 
-int kernel_entry(void)
+int main(void)
 {
     quandale = 100;
     *quandale = 2;

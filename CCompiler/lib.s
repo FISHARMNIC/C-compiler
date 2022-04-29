@@ -42,19 +42,40 @@ put_char:
 
 halt:
     _shift_stack_right_
+
+    put_char 'a'
+    put_char ' '
     put_register %eax
     new_line
+
+    put_char 'b'
+    put_char ' '
     put_register %ebx
     new_line
+
+    put_char 'c'
+    put_char ' '
     put_register %ecx
     new_line
+
+    put_char 'd'
+    put_char ' '
     put_register %edx
     new_line
+
     new_line
+    put_char 's'
+    put_char ' '
     put_register %esp
     new_line
+
+    put_char '1'
+    put_char ' '
     put_int _stack_d1_
     new_line
+
+    put_char '2'
+    put_char ' '
     put_int _stack_d2_
     new_line
     hlt

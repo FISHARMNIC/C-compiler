@@ -60,9 +60,24 @@ global.evaluate = function (line) {
                         name: p1token().phrase,
                         value: n1token().phrase
                     })
+                } else if(inFunction.isTrue) { // @#$
+                    if(Object.keys(variables).includes(`_${inFunction.name}_${p1token().phrase}_`)) {
+                        if (isDefined(p2token()) && p2token().phrase == "*") { // |*known = ... | <- value at pointer redefinition
+                            function_setPointer({
+                                name: `_${inFunction.name}_${p1token().phrase}_`,
+                                value: n1token().phrase
+                            })
+                        } else { // normal redefintion
+                            function_setVariable({
+                                name: `_${inFunction.name}_${p1token().phrase}_`,
+                                value: n1token().phrase
+                            })
+                        }
+                    }
+                    //console.log("undefined variable: ", p1token().phrase);
                 }
                 else {
-                    console.log("undefined variable: ", p1token().phrase);
+                    console.log("undefined:", p1token().phrase)
                 }
             } else if (p1token().type == "assigned") { // |known = ...| <- variable definition
                 if (isDefined(p2token()) && p2token().phrase == "*") { // |*known = ... | <- value at pointer redefinition
@@ -144,74 +159,8 @@ global.evaluate = function (line) {
                 line.splice(itemNo, 3)
                 // FINISH THIS !!!!!!!!!!!!!! 123 FIND ME ABC !@# QWERTY \
             }
-        } else if (token.phrase == "*") { // ------------------- POINTERS -------------------
-            //console.log("CALLING OBAMA #AM", p1token())
-            if (n1token().type == "unassigned" && p1token().type == "type") { //creating pointer variable
-                if (n2token().phrase == "=") { //with definiton
-                    function_createVariable({
-                        type: p1token().phrase,
-                        name: n1token().phrase + "*",
-                        value: n3token().phrase,
-                    })
-                } else { // without definiton
-                    function_createVariable({
-                        type: p1token().phrase + "*",
-                        name: n1token().phrase,
-                    })
-                }
-            } else if (n1token().type == "assigned") {
-                text_section.push(
-                    `mov %edx, ${n1token().phrase}`,
-                    `mov %edx, [%edx]`,
-                    `mov _temp_reg_, %edx`
-                )
-                line[itemNo] = {
-                    phrase: `_temp_reg_`,
-                    type: "assigned"
-                }
-                line.splice(itemNo + 1, 1)
-                console.log("RIPBOZO", line)
-
-            }
         }
-        /*
-        //else if (mathOperations.includes(token.phrase)) {
-        //     console.log("eval:", p1token().phrase, token.phrase, n1token().phrase)
-        //     switch(token.phrase) {
-        //         case "+":
-        //             text_section.push(
-        //                 `mov %eax, ${p1token().phrase}`,
-        //                 `add %eax, ${n1token().phrase}`,
-        //             )
-        //             break;
-        // case "-":
-        //     text_section.push(
-        //         `mov %eax, ${p1token().phrase}`,
-        //         `sub %eax, ${n1token().phrase}`,
-        //     )
-        //     break;
-        // case "/":
-        //     text_section.push(
-        //         `mov %eax, ${p1token().phrase}`,
-        //         `mov %ebx, ${n1token().phrase}`
-        //         `div %ebx, ${n1token().phrase}`,
-        //     )
-        //     break;
-        // case "x": // MAKE SYMBOL TABLE FOR STUPID POINTER IS MLT SIGN
-        //     text_section.push(
-        //         `mov %eax, ${p1token().phrase}`,
-        //         `mov %ebx, ${n1token().phrase}`
-        //         `mul %ebx, ${n1token().phrase}`,
-        //         )
-        //         break;
-        //     case "|":
-        //         break;
-        //     // ALSO SYMBOL TABLE FOR "AND"
-        // }
-        // text_section.push(`mov _mathResult, %eax`)
-        // line[itemNo - 1] = {phrase: "_mathResult", type: "assigned"}
-        // line.splice(itemNo, 2)
-        */
+
         else if (token.phrase == "eq") { //evaluation
             var scanPos = itemNo + 3
             text_section.push(`\npush %eax`, `mov %eax, ${line[itemNo + 2].phrase}`)
@@ -278,10 +227,17 @@ global.evaluate = function (line) {
                 scanPos += 2;
             }
             text_section.push(`mov _mathResult, %eax`, `pop %eax\n`)
-            line[itemNo] = {phrase:"_mathResult", type:"assigned"}
+            line[itemNo] = { phrase: "_mathResult", type: "assigned" }
             line.splice(itemNo + 1, scanPos - itemNo)
         }
-
+        else if(token.phrase == "&") {
+            text_section.push(
+                `lea %eax, ${n1token().phrase}`,
+                `mov _temp_base_, %eax`
+                )
+            line[itemNo] = {phrase: "_temp_base_", type: "assinged"}
+            line.splice(itemNo + 1, 1)
+        }
         //NEEDS TO BE AT THE END
         else if (token.phrase == "return") {
             text_section.push(
@@ -302,6 +258,7 @@ global.evaluate = function (line) {
                         returnType: p1token().phrase,
                         parameters: line.slice(itemNo + 2, -1).map(x => x.phrase).filter(x => x != ",")
                     })
+
                 } else if (line.at(-1).phrase == "{") {
                     function_createFunction({
                         name: token.phrase,
@@ -309,12 +266,49 @@ global.evaluate = function (line) {
                         parameters: line.slice(itemNo + 2, -2).map(x => x.phrase).filter(x => x != ",")
                     })
                 }
+                line = [{ phrase: ';', type: 'any' }]
                 parenthesisStack.push("{")
             } else if ((isDefined(p1token()) ? true : false) && line.at(-2).phrase == ")" && line.at(-1).phrase == ";") {// |known(...);| <- function call
+                var pars = line.slice(itemNo + 2, -2).map(x => x.phrase).filter(x => x != ",")
                 function_runFunction({
                     name: token.phrase,
-                    parameters: line.slice(itemNo + 2, -2).map(x => x.phrase).filter(x => x != ",")
+                    parameters: pars
                 })
+                if (isDefined(variables[token.phrase])) {
+                    line[itemNo] = { phrase: `_return_${variables[token.phrase].returnType}_`, type: "assigned" }
+                    line.splice(itemNo + 1, pars.length)
+                }
+            }
+        } else if (token.phrase == "*") { // ------------------- POINTERS -------------------
+            //console.log("CALLING OBAMA #AM", p1token())
+            if (n1token().type == "unassigned" && p1token().type == "type") { //creating pointer variable
+                if (!((isDefined(line[2]) ? line[2].phrase == "(" : false) && line[1].type == "unassigned" && line[0].type == "type")) { // if function  def
+                    if (n2token().phrase == "=") { //with definiton
+                        function_createVariable({
+                            type: p1token().phrase + "*",
+                            name: n1token().phrase,
+                            value: n3token().phrase,
+                        })
+                    } else { // without definiton
+                        function_createVariable({
+                            type: p1token().phrase + "*",
+                            name: n1token().phrase,
+                        })
+                    }
+                }
+            } else if (n1token().type == "assigned") {
+                text_section.push(
+                    `mov %edx, ${n1token().phrase}`,
+                    `mov %edx, [%edx]`,
+                    `mov _temp_reg_, %edx`
+                )
+                line[itemNo] = {
+                    phrase: `_temp_reg_`,
+                    type: "assigned"
+                }
+                line.splice(itemNo + 1, 1)
+                console.log("RIPBOZO", line)
+
             }
         }
         else if (token.phrase == "}" && parenthesisStack.at(-1) == "{" && inFunction.isTrue) { // at the end of a function

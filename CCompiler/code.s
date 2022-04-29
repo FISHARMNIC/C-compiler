@@ -14,9 +14,12 @@ _stack_d2_: .long 0
 _mathResult: .long 0
 
 pointer: .long 0xB8000
-_formatVGA_bgColor_: .byte 0
-_formatVGA_fgColor_: .byte 0
-_formatVGA_character_: .byte 0
+exampleString: .asciz "chicken"
+_formatVGA_bgColor_: .long 0
+_formatVGA_fgColor_: .long 0
+_formatVGA_character_: .long 0
+_putchar_character_: .long 0
+_putstring_string_: .long 0
 
 .include "../lib.s"
 .section .text
@@ -29,6 +32,7 @@ mov _stack_d2_, %eax
 
 _shift_stack_left_
 call main
+_shift_stack_right_
 hlt
 
 formatVGA:
@@ -68,14 +72,16 @@ _shift_stack_left_
 ret
 # ------ END FUNCTION ------
 
-main:
+putchar:
 _shift_stack_right_
+pop %edx
+mov _putchar_character_, %edx
 
 mov %edx, 0
 push %edx
 mov %edx, 15
 push %edx
-mov %edx, 'A'
+mov %edx, _putchar_character_
 push %edx
 
 _shift_stack_left_
@@ -84,8 +90,170 @@ _shift_stack_right_
 
 
 mov %edx, pointer
-mov %ecx, formatVGA
+mov %ecx, _return_int_
 mov [%edx], %ecx
+
+push %eax
+mov %eax, pointer
+add %eax, 2
+mov _mathResult, %eax
+pop %eax
+
+
+mov %edx, _mathResult
+mov pointer, %edx
+
+_shift_stack_left_
+ret
+# ------ END FUNCTION ------
+
+putstring:
+_shift_stack_right_
+pop %edx
+mov _putstring_string_, %edx
+mov %edx, _putstring_string_
+mov %edx, [%edx]
+mov _temp_reg_, %edx
+
+mov %edx, _temp_reg_
+push %edx
+
+_shift_stack_left_
+call putchar
+_shift_stack_right_
+
+
+push %eax
+mov %eax, _putstring_string_
+add %eax, 1
+mov _mathResult, %eax
+pop %eax
+
+
+mov %edx, _mathResult
+mov _putstring_string_, %edx
+mov %edx, _putstring_string_
+mov %edx, [%edx]
+mov _temp_reg_, %edx
+
+mov %edx, _temp_reg_
+push %edx
+
+_shift_stack_left_
+call putchar
+_shift_stack_right_
+
+
+push %eax
+mov %eax, _putstring_string_
+add %eax, 1
+mov _mathResult, %eax
+pop %eax
+
+
+mov %edx, _mathResult
+mov _putstring_string_, %edx
+mov %edx, _putstring_string_
+mov %edx, [%edx]
+mov _temp_reg_, %edx
+
+mov %edx, _temp_reg_
+push %edx
+
+_shift_stack_left_
+call putchar
+_shift_stack_right_
+
+
+push %eax
+mov %eax, _putstring_string_
+add %eax, 1
+mov _mathResult, %eax
+pop %eax
+
+
+mov %edx, _mathResult
+mov _putstring_string_, %edx
+mov %edx, _putstring_string_
+mov %edx, [%edx]
+mov _temp_reg_, %edx
+
+mov %edx, _temp_reg_
+push %edx
+
+_shift_stack_left_
+call putchar
+_shift_stack_right_
+
+
+push %eax
+mov %eax, _putstring_string_
+add %eax, 1
+mov _mathResult, %eax
+pop %eax
+
+
+mov %edx, _mathResult
+mov _putstring_string_, %edx
+mov %edx, _putstring_string_
+mov %edx, [%edx]
+mov _temp_reg_, %edx
+
+mov %edx, _temp_reg_
+push %edx
+
+_shift_stack_left_
+call putchar
+_shift_stack_right_
+
+
+push %eax
+mov %eax, _putstring_string_
+add %eax, 1
+mov _mathResult, %eax
+pop %eax
+
+
+mov %edx, _mathResult
+mov _putstring_string_, %edx
+mov %edx, _putstring_string_
+mov %edx, [%edx]
+mov _temp_reg_, %edx
+
+mov %edx, _temp_reg_
+push %edx
+
+_shift_stack_left_
+call putchar
+_shift_stack_right_
+
+
+push %eax
+mov %eax, _putstring_string_
+add %eax, 1
+mov _mathResult, %eax
+pop %eax
+
+
+mov %edx, _mathResult
+mov _putstring_string_, %edx
+
+_shift_stack_left_
+ret
+# ------ END FUNCTION ------
+
+main:
+_shift_stack_right_
+lea %eax, exampleString
+mov _temp_base_, %eax
+
+mov %edx, _temp_base_
+push %edx
+
+_shift_stack_left_
+call putstring
+_shift_stack_right_
+
 mov %edx, 0
 mov _return_int_, %edx
 

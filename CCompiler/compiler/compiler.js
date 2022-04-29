@@ -45,6 +45,7 @@ mov _stack_d2_, %eax
 ${init_section.join("\n")}
 _shift_stack_left_
 call main
+_shift_stack_right_
 hlt
 
 ${text_section.join("\n")}
