@@ -1,0 +1,44 @@
+todo:
+
+- fix accessing arrays
+- add an unsafe quick evaluator
+- add casting
+- fix "*" and "&" not being implemented
+- add initializing a vairable with a dynamic value, ex "int jon = eq(1+2);"
+- add undeifned integer and char types: "int jon;"
+- char parameters not working
+- finish if statements
+- add "tempReg2" and "tempBase2" for multiple access points
+- add comments
+
+if: function (v, cmp, v2) {
+        main_kernel_data.push(
+            `push %eax; push %ebx`,
+            `mov %eax, ${v}`,
+            `mov %ebx, ${v2}`,
+            `cmp %eax, %ebx`,
+            `pop %ebx; pop %eax`,
+            `${compares[cmp]} ${endifLabel(1)}`, //1
+            `jmp ${endifLabel(-1)}`, // 0
+            `${endifLabel(1)}:`,//1
+        )
+    },
+elif: function (v, cmp, v2) {
+        main_kernel_data.push(
+            `jmp ${ifTerm()}`,
+            `${endifLabel(1)}:`,
+        )
+        this.if(v, cmp, v2)
+    },
+else: function () {
+        main_kernel_data.push(
+            `jmp ${ifTerm()}`,
+            `${endifLabel(1)}:`,
+        )
+    },
+endif: function () {
+        main_kernel_data.push(
+            `${ifTerm(1)}:`,
+            `${endifLabel(1)}:`
+        )
+    },
