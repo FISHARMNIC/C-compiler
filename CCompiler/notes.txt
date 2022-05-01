@@ -1,9 +1,0 @@
-todo:
-
-- fix accessing arrays
-- add an unsafe quick evaluator
-- add casting
-- fix "*" and "&" not being implemented
-- add initializing a vairable with a dynamic value, ex "int jon = eq(1+2);"
-- add undeifned integer and char types: "int jon;"
-- char parameters not working
