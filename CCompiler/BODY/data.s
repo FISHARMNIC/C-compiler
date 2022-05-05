@@ -33,79 +33,6 @@ _vga_entry:
 
 keyboard_out: .byte 0
 
-.macro set_var addr, value
-    movw \addr, \value
-.endm
-
-.macro inc_var addr
-    # push %ebx
-    # mov %ebx, [\addr]
-    # inc %ebx
-    # mov \addr, %ebx
-    # pop %ebx
-    incw [\addr]
-.endm
-
-.macro dec_var addr
-    # push %ebx
-    # mov %ebx, [\addr]
-    # inc %ebx
-    # mov \addr, %ebx
-    # pop %edx
-    decw [\addr]
-.endm
-
-.macro add_var addr, value
-    push %ebx
-    mov %ebx, [\addr]
-    add %ebx, \value
-    mov \addr, %ebx
-    pop %ebx
-.endm
-
-.macro add_vars addr, value
-    push %ebx
-    mov %ebx, [\addr]
-    add %ebx, [\value]
-    mov \addr, %ebx
-    pop %ebx
-.endm
-
-.macro sub_var addr, value
-    push %ebx
-    mov %ebx, [\addr]
-    sub %ebx, \value
-    mov \addr, %ebx
-    pop %ebx
-.endm
-
-.macro mul_var addr, value
-    push %eax
-    push %ebx
-
-    mov %ebx, [\addr]
-    mov %eax, \value
-
-    mul %ebx
-    mov \addr, %eax
-
-    pop %ebx
-    pop %eax
-.endm
-
-.macro mul_vars addr, value
-    push %eax
-    push %ebx
-
-    mov %ebx, [\addr]
-    mov %eax, [\value]
-
-    mul %ebx
-    mov \addr, %eax
-
-    pop %ebx
-    pop %eax
-.endm
 
 _remainder:
     cmp %eax, %edx
@@ -137,7 +64,7 @@ _remainder:
     mov %ebx, \i # prepare the index register
     call _vga_entry # call the display
     popa
-    inc_var _lineNumber
+    incw _lineNumber
 .endm
 
 _clearVGA:

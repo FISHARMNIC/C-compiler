@@ -6,11 +6,11 @@ todo:
 - fix "*" and "&" not being implemented
 - add initializing a vairable with a dynamic value, ex "int jon = eq(1+2);"
 - add undeifned integer and char types: "int jon;"
-- char parameters not working
+- char parameters not working, may have to do with using "edx" and not "dl" and "dx"
 - finish if statements
 - add "tempReg2" and "tempBase2" for multiple access points
-- add comments, at the beginning of evaluator check if line[0].phrase is "//" and if so skip
-- add casting
+- add comments
+- fix having to pass a string as a parameter with "&" 
 
 if: function (v, cmp, v2) {
         main_kernel_data.push(

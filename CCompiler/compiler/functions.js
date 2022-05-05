@@ -3,7 +3,9 @@
 global.internal_macros = {
     // param length
     "goto": 1,
+    "new_line": 0
 }
+
 global.function_createVariable = function ({ type, name, value, pointer = false }) {
     if (type.includes("*")) {
         type = type.slice(0, -1);

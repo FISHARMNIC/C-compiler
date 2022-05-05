@@ -4,8 +4,7 @@
 .global _kernel_entry
 .section .bss
 
-bob: .fill 5, 1
-quandale: .int 0
+
 
 .section .data
 _return_int_: .long 0
@@ -15,21 +14,13 @@ _stack_d2_: .long 0
 _mathResult: .long 0
 
 
-jon: .int 10
-foo: .asciz "foo"
-dingle:
-.int 1
-.int 2
-.int 3
-.int 4
-.int 5
-jaquavious:
-.byte 'a'
-.byte 'b'
-.byte 'c'
-_testFunction_num1_: .int 0
-_testFunction_num2_: .int 0
-_testFunction_num3_: .int 0
+pointer: .int 0xB8000
+exampleString: .asciz "chicken"
+_formatVGA_bgColor_: .int 0
+_formatVGA_fgColor_: .int 0
+_formatVGA_character_: .int 0
+_putchar_character_: .int 0
+_putstring_string_: .int 0
 
 .include "../lib.s"
 .section .text
@@ -45,40 +36,116 @@ call main
 _shift_stack_right_
 hlt
 
-NOtes:
-testFunction:
+formatVGA:
 _shift_stack_right_
 pop %edx
-mov _testFunction_num3_, %edx
+mov _formatVGA_character_, %edx
 pop %edx
-mov _testFunction_num2_, %edx
+mov _formatVGA_fgColor_, %edx
 pop %edx
-mov _testFunction_num1_, %edx
+mov _formatVGA_bgColor_, %edx
 
-mov %edx, _testFunction_num1_
+push %eax
+mov %eax, _formatVGA_bgColor_
+push %ecx
+mov %cl, 4
+shl %eax, %cl
+pop %ecx
+push %ebx
+mov %ebx, _formatVGA_fgColor_
+or %eax, %ebx
+pop %ebx
+push %ecx
+mov %cl, 8
+shl %eax, %cl
+pop %ecx
+push %ebx
+mov %ebx, _formatVGA_character_
+or %eax, %ebx
+pop %ebx
+mov _mathResult, %eax
+pop %eax
+
+mov %edx, _mathResult
+mov _return_int_, %edx
+
+_shift_stack_left_
+ret
+# ------ END FUNCTION ------
+
+putchar:
+_shift_stack_right_
+pop %edx
+mov _putchar_character_, %edx
+
+mov %edx, 0
+push %edx
+mov %edx, 15
+push %edx
+mov %edx, _putchar_character_
 push %edx
 
 _shift_stack_left_
-call put_int
+call formatVGA
 _shift_stack_right_
 
-broken:
 
-mov %edx, _testFunction_num2_
+mov %edx, pointer
+mov %ecx, _return_int_
+mov [%edx], %cl
+
+push %eax
+mov %eax, pointer
+add %eax, 2
+mov _mathResult, %eax
+pop %eax
+
+
+mov %edx, _mathResult
+mov pointer, %edx
+
+_shift_stack_left_
+ret
+# ------ END FUNCTION ------
+
+putstring:
+_shift_stack_right_
+pop %edx
+mov _putstring_string_, %edx
+mov %edx, _putstring_string_
+mov %edx, [%edx]
+mov _temp_reg_, %edx
+_while_0:
+mov %edx, _temp_reg_
+push %edx
+mov %edx, 0
+push %edx
+mov %edx, _putstring_string_
+mov %edx, [%edx]
+mov _temp_reg_, %edx
+
+mov %edx, _temp_reg_
 push %edx
 
 _shift_stack_left_
-call put_int
+call put_char
 _shift_stack_right_
 
 
-mov %edx, _testFunction_num3_
-push %edx
+push %eax
+mov %eax, _putstring_string_
+add %eax, 1
+mov _mathResult, %eax
+pop %eax
 
-_shift_stack_left_
-call put_int
-_shift_stack_right_
 
+mov %edx, _mathResult
+mov _putstring_string_, %edx
+
+pop %edx
+pop %eax
+cmp %eax, %edx
+jne _while_0
 
 _shift_stack_left_
 ret
@@ -87,28 +154,22 @@ ret
 main:
 _shift_stack_right_
 
-mov %edx, 100
-mov quandale, %edx
-
-mov %edx, quandale
-mov %ecx, 2
-mov [%edx], %ecx
-
-mov %edx, 3
-mov jon, %edx
-mov %edx, quandale
-mov %edx, [%edx]
-mov _temp_reg_, %edx
-
-mov %edx, 1
-push %edx
-mov %edx, _temp_reg_
-push %edx
-mov %edx, jon
+mov %edx, 'A'
 push %edx
 
 _shift_stack_left_
-call testFunction
+call putchar
+_shift_stack_right_
+
+new_line 
+lea %eax, exampleString
+mov _temp_base_, %eax
+
+mov %edx, _temp_base_
+push %edx
+
+_shift_stack_left_
+call putstring
 _shift_stack_right_
 
 mov %edx, 0

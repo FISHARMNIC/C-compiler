@@ -67,6 +67,12 @@ global.getDynaLabel = function(amt = 0) {
     return `_auto_${(dynamicLabel += amt) - amt}`
 }
 
+global.DL_while = 0;
+global.whileLabel = function(amt = 0) {
+
+    return `_while_${(DL_while += amt) - amt}`
+}
+
 global.typeGuesses = {
     //if you modify these names, modify "expectations" too
     type: (p) => Object.keys(variableTypes).includes(p),
@@ -85,6 +91,7 @@ global.parenthesisStack = []
 global.todoList = {}
 
 global.inFunction = {isTrue: false, name: false}
+global.inWhile = false
 
 var stringLabelCounter4 = 0
 global.endifLabel = function(increment = 0) {

@@ -27,6 +27,10 @@ global.evaluate = function (line) {
     var n4token;
 
     for (var itemNo = Object.keys(line).length - 1; itemNo >= 0; itemNo--) {
+        if (line[itemNo].phrase == "//") {
+            itemNo = -1
+            return
+        }
         token = line[itemNo];
 
         p1token = () => isDefined(line[itemNo - 1]) ? line[itemNo - 1] : false;
@@ -230,7 +234,7 @@ global.evaluate = function (line) {
             text_section.push(`mov _mathResult, %eax`, `pop %eax\n`)
             line[itemNo] = { phrase: "_mathResult", type: "assigned" }
             line.splice(itemNo + 1, scanPos - itemNo)
-        } 
+        }
 
         else if (token.phrase == "if") {
             text_section.push(
@@ -243,6 +247,25 @@ global.evaluate = function (line) {
                 `jmp ${endifLabel(-1)}`, // 0
                 `${endifLabel(1)}:`,//1
             )
+        }
+
+        else if (token.phrase == "while") {
+            inWhile = true
+            console.log("while pp", line)
+            text_section.push(
+                `${whileLabel()}:`,
+                `mov %edx, ${n2token().phrase}`,
+                `push %edx`,
+                `mov %edx, ${n4token().phrase}`,
+                `push %edx`,
+            )
+            parenthesisStack.push({
+                bracket:"{",
+                type:"while",
+                data: {
+                    compareType: n3token().phrase
+                }
+            })
         }
         // -----------------------------------------------------------------------------------------------------------------------------------
         else if (token.phrase == "&") {
@@ -260,7 +283,7 @@ global.evaluate = function (line) {
 
         else if (Object.keys(internal_macros).includes(token.phrase)) { // internal macro
             text_section.push(`${token.phrase} ${line.map(x => x.phrase).slice(itemNo + 1, internal_macros[token.phrase] + 1)}`)
-        }
+        } 
 
 
         //NEEDS TO BE AT THE END
@@ -292,7 +315,8 @@ global.evaluate = function (line) {
                     })
                 }
                 line = [{ phrase: ';', type: 'any' }]
-                parenthesisStack.push("{")
+                parenthesisStack.push({bracket:"{", type:"function", returnType: p1token().phrase})
+                
             } else if ((isDefined(p1token()) ? true : false) && line.at(-2).phrase == ")" && line.at(-1).phrase == ";") {// |known(...);| <- function call
                 var pars = line.slice(itemNo + 2, -2).map(x => x.phrase).filter(x => x != ",")
                 function_runFunction({
@@ -322,10 +346,20 @@ global.evaluate = function (line) {
                     }
                 }
             } else if (n1token().type == "assigned") {
+
+                var tempreg = "%edx"
+                switch(variables[n1token().phrase].type) {
+                    case "char":
+                        tempreg = "%dl"
+                        break
+                    case "short":
+                        tempreg = "%dx"
+                }
+                // HERE COMPAING POINTER 
                 text_section.push(
                     `mov %edx, ${n1token().phrase}`,
-                    `mov %edx, [%edx]`,
-                    `mov _temp_reg_, %edx`
+                    `mov ${tempreg}, [%edx]`,
+                    `mov _temp_reg_, ${tempreg}`
                 )
                 line[itemNo] = {
                     phrase: `_temp_reg_`,
@@ -336,15 +370,28 @@ global.evaluate = function (line) {
 
             }
         }
-        else if (token.phrase == "}" && parenthesisStack.at(-1) == "{" && inFunction.isTrue) { // at the end of a function
-            // endif needs to go her FIND ME HERE !@# QWERTY
-            text_section.push(
-                `\n_shift_stack_left_`,
-                `ret`,
-                `# ------ END FUNCTION ------\n`
-            )
-            inFunction = { isTrue: false };
-            parenthesisStack.pop()
+        else if (token.phrase == "}") { // at the end of a function
+            if (parenthesisStack.at(-1).bracket == "{") {
+                if (parenthesisStack.at(-1).type == "while") { // end of while
+                    //text_section.push("cokc")
+                    text_section.push(
+                        `\npop %edx`,
+                        `pop %eax`,
+                        `cmp %eax, %edx`,
+                        `${compares[parenthesisStack.at(-1).data.compareType]} ${whileLabel(1)}`,
+                    )
+                    parenthesisStack.pop()
+                }
+                else if (inFunction.isTrue && parenthesisStack.at(-1).type == "function") { // end of function
+                    text_section.push(
+                        `\n_shift_stack_left_`,
+                        `ret`,
+                        `# ------ END FUNCTION ------\n`
+                    )
+                    inFunction = { isTrue: false };
+                    parenthesisStack.pop()
+                }
+            }
         }
         //console.log("PSTCK", parenthesisStack)
     }
