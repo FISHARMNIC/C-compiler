@@ -12,6 +12,7 @@ todo:
 - finish input
 - fix "if" "else if" "else" statements having to be formatted specifically 
 - fix inline function calls for while statments "while(get_char() != 'A')"
+- fix the editor criticizing function pointers
 
 if: function (v, cmp, v2) {
         main_kernel_data.push(

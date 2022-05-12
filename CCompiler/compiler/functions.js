@@ -36,7 +36,7 @@ global.function_createBuffer = function ({ type, name, value, size = -1, pointer
             data_section.push(
                 `${stringLiteralLabel()}: .asciz ${value}`,
                 `${name}: .long 0`
-                )
+            )
             init_section.push(
                 `lea %edx, ${stringLiteralLabel(1)}`,
                 `mov ${name}, %edx`
@@ -49,7 +49,7 @@ global.function_createBuffer = function ({ type, name, value, size = -1, pointer
             data_section.push(
                 `${name}: .long 0`,
                 `${stringLiteralLabel()}:`
-                )
+            )
             for (i = 0; i < size; i++)
                 data_section.push(`${variableTypes[type]} ${value[i]}`)
 
@@ -135,7 +135,7 @@ global.function_createFunction = function ({ name, parameters, returnType }) {
     if (parameters != ["void"]) {
         for (i = parameters.length - 2; i >= 0; i -= 2) {
             var type = parameters[i]
-            if(parameters[i+2] == "*") {
+            if (parameters[i + 2] == "*") {
                 console.log("big booty latinas")
                 i--;
             }
@@ -163,7 +163,7 @@ global.function_createFunction = function ({ name, parameters, returnType }) {
     variables[name] = { name, function: true, returnType, parameters: obuffer }
 }
 
-global.function_runFunction = function ({ name, parameters }) {
+global.function_runFunction = function ({ name, parameters, indirect = false }) {
     text_section.push("")
     parameters.forEach(x => {
         if (x[0] == '"' && x.at(-1) == '"') {
@@ -184,17 +184,26 @@ global.function_runFunction = function ({ name, parameters }) {
             )
         }
     })
-    text_section.push(
-        `\n_shift_stack_left_`,
-        `call ${name}`,
-        `_shift_stack_right_\n`
-    )
+    if (indirect) {
+        text_section.push(
+            `\n_shift_stack_left_`,
+            `mov %edx, ${name}`,
+            `call %edx`,
+            `_shift_stack_right_\n`
+        )
+    } else {
+        text_section.push(
+            `\n_shift_stack_left_`,
+            `call ${name}`,
+            `_shift_stack_right_\n`
+        )
+    }
 }
 
 var tempbase_counter = 0
 var highest_tempbase_used = 0
-global.use_tempbase = function(amt = 0) {
-    if(tempbase_counter + 1 > highest_tempbase_used) {
+global.use_tempbase = function (amt = 0) {
+    if (tempbase_counter + 1 > highest_tempbase_used) {
         function_createVariable({
             type: "long",
             name: `_temp_base_${tempbase_counter}_`,
@@ -208,8 +217,8 @@ global.use_tempbase = function(amt = 0) {
 
 var tempreg_counter = 0
 var highest_tempreg_used = 0
-global.use_tempreg = function(amt = 0) {
-    if(tempreg_counter + 1 > highest_tempreg_used) {
+global.use_tempreg = function (amt = 0) {
+    if (tempreg_counter + 1 > highest_tempreg_used) {
         function_createVariable({
             type: "long",
             name: `_temp_reg_${tempreg_counter}_`,
@@ -221,7 +230,7 @@ global.use_tempreg = function(amt = 0) {
     return `_temp_reg_${tempreg_counter - amt}_`
 }
 
-global.reset_tb_tr = function() {
+global.reset_tb_tr = function () {
     tempbase_counter = 0
     tempreg_counter = 0
 }

@@ -42,12 +42,18 @@ global.evaluate = function (line) {
         n3token = () => isDefined(line[itemNo + 3]) ? line[itemNo + 3] : false;
         n4token = () => isDefined(line[itemNo + 4]) ? line[itemNo + 4] : false;
 
-        if (inFunction.isTrue && inFunction.parameters.includes(`_${inFunction.name}_${token.phrase}_`)) {
+        function tryFunctionPar(word) {
+            if (inFunction.isTrue && inFunction.parameters.includes(`_${inFunction.name}_${word}_`)) {
+                return `_${inFunction.name}_${word}_`
+            }
+            return word
+
+        }
+        if(tryFunctionPar(token.phrase) != token.phrase) {
             line[itemNo] = {
-                phrase: `_${inFunction.name}_${token.phrase}_`,
+                phrase: tryFunctionPar(token.phrase),
                 type: "assigned"
             }
-            token = line[itemNo]
         }
 
         if (token.phrase == "=") { // ------------------- ASSIGNMENT -------------------
@@ -171,12 +177,12 @@ global.evaluate = function (line) {
                 line.splice(itemNo, 3)
                 // FINISH THIS !!!!!!!!!!!!!! 123 FIND ME ABC !@# QWERTY \
             }
-        } else if (token.type == "type" && p1token().phrase == "(" && n1token().phrase == ")") { // ------- CAST -----
+        } else if (token.type == "type" && p1token().phrase == "(" && n1token().phrase == ")" && token.phrase != "void") { // ------- CAST -----
             text_section.push( // HERE 
                 `mov %edx, ${n2token().phrase}`,
                 `mov _cast_${token.phrase}_, ${variableToRegister(token.phrase, "d")}`
             )
-            line[--itemNo] = {phrase:`_cast_${token.phrase}_`, type:"assigned"}
+            line[--itemNo] = { phrase: `_cast_${token.phrase}_`, type: "assigned" }
             line.splice(itemNo + 1, 3)
         }
 
@@ -259,7 +265,7 @@ global.evaluate = function (line) {
 
                 var skip = endifLabel(1, 1)
                 // when it's formatted like "} else if(...)" instead of "} \n else if(...)" it breaks HERE ME BROKEN !# 123
-                text_section.splice(-2, 0, `jmp ${skip}`) 
+                text_section.splice(-2, 0, `jmp ${skip}`)
 
                 text_section.push(
                     `mov %eax, ${n2token().phrase}`,
@@ -364,8 +370,8 @@ global.evaluate = function (line) {
             console.log("RETURN", line.slice(itemNo + 2, -2).map(x => x.phrase).filter(x => x != ","))
             return;
         }
-        else if (isDefined(n1token()) ? n1token().phrase == "(" : false) { // current token is a unknown/function call
-            console.log("PFUNC ------", line)
+        else if (isDefined(n1token()) ? (n1token().phrase == "(" || (n1token().phrase == ")" && n2token().phrase == "(")) : false) { // current token is a unknown/function call
+            console.log("PFUNC ------", line, itemNo)
             if (token.type == "unassigned" && p1token().type == "type") { // |type unknown(...)| <- function definition
                 // add prototypes?
                 console.log("BAAANNAAAAA", line.slice(itemNo + 2, -1).map(x => x.phrase).filter(x => x != ","))
@@ -387,34 +393,62 @@ global.evaluate = function (line) {
                 parenthesisStack.push({ bracket: "{", type: "function", returnType: p1token().phrase })
 
             } else { // function call
-                var cpos = itemNo
-                while(true) {
-                    if(line[cpos].phrase == ")") {
-                        break
+                if (token.phrase == ")") { // |(variable)(...)| Function as pointer
+                    
+                    var cpos = itemNo + 1
+                    while (true) {
+                        if (line[cpos].phrase == ")") {
+                            break
+                        }
+                        cpos++
                     }
-                    cpos++
-                }
-                var pars = line.slice(itemNo + 2, cpos).map(x => x.phrase).filter(x => x != ",")
-                console.log("******", pars.join())
-                if (pars == ")") {
-                    console.log("yuh")
-                    pars = []
-                }
-                function_runFunction({
-                    name: token.phrase,
-                    parameters: pars
-                })
-                if (isDefined(variables[token.phrase])) {
-                    line[itemNo] = { phrase: `_return_${variables[token.phrase].returnType}_`, type: "assigned" }
-                    line.splice(itemNo + 1, pars.length)
-                } else {
+
+                    var pars = line.slice(itemNo + 2, cpos).map(x => x.phrase).filter(x => x != ",")
+                    console.log("******POINTER FUNC", String(pars))
+                    if (String(pars) == "") {
+                        console.log("yuh")
+                        pars = []
+                    }
+                    
+                    function_runFunction({
+                        name: tryFunctionPar(p1token().phrase),
+                        parameters: pars,
+                        indirect: true
+                    })
                     console.log("BSPLICE", line)
                     line[itemNo] = { phrase: `_return_int_`, type: "assigned" }
                     line.splice(itemNo + 1, pars.length + 2)
                     console.log("ASPLICE", line)
+                } else { // normal function
+                    var cpos = itemNo
+                    while (true) {
+                        if (line[cpos].phrase == ")") {
+                            break
+                        }
+                        cpos++
+                    }
+                    var pars = line.slice(itemNo + 2, cpos).map(x => x.phrase).filter(x => x != ",")
+                    console.log("******", pars.join())
+                    if (pars == ")") {
+                        console.log("yuh")
+                        pars = []
+                    }
+                    function_runFunction({
+                        name: token.phrase,
+                        parameters: pars
+                    })
+                    if (isDefined(variables[token.phrase])) {
+                        line[itemNo] = { phrase: `_return_${variables[token.phrase].returnType}_`, type: "assigned" }
+                        line.splice(itemNo + 1, pars.length)
+                    } else {
+                        console.log("BSPLICE", line)
+                        line[itemNo] = { phrase: `_return_int_`, type: "assigned" }
+                        line.splice(itemNo + 1, pars.length + 2)
+                        console.log("ASPLICE", line)
+                    }
                 }
             }
-            
+
             /*else if (isDefined(p1token()) && line.at(-2).phrase == ")" && line.at(-1).phrase == ";") {   // |known(...)| <- function call
                 var pars = line.slice(itemNo + 2, -2).map(x => x.phrase).filter(x => x != ",")
                 console.log("******", pars.join())

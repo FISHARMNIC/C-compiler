@@ -18,7 +18,9 @@ _mathResult: .long 0
 __final_message__: .asciz "program exit with code: "
 
 
-jon: .int 65
+_callbackFN_done_: .byte 0
+_func_callback_: .int 0
+_temp_base_0_: .long 0
 
 .include "../lib.s"
 .section .text
@@ -37,16 +39,59 @@ _shift_stack_right_
 
 hlt
 
-main:
+callbackFN:
 _shift_stack_right_
-mov %edx, jon
-mov _cast_char_, %dl
+pop %edx
+mov _callbackFN_done_, %dl
 
-mov %edx, _cast_char_
+mov %edx, _callbackFN_done_
 push %edx
 
 _shift_stack_left_
 call put_char
+_shift_stack_right_
+
+
+_shift_stack_left_
+ret
+# ------ END FUNCTION ------
+
+func:
+_shift_stack_right_
+pop %edx
+mov _func_callback_, %edx
+
+mov %edx, 'A'
+push %edx
+
+_shift_stack_left_
+call put_char
+_shift_stack_right_
+
+
+mov %edx, 'Z'
+push %edx
+
+_shift_stack_left_
+mov %edx, _func_callback_
+call %edx
+_shift_stack_right_
+
+
+_shift_stack_left_
+ret
+# ------ END FUNCTION ------
+
+main:
+_shift_stack_right_
+lea %eax, callbackFN
+mov _temp_base_0_, %eax
+
+mov %edx, _temp_base_0_
+push %edx
+
+_shift_stack_left_
+call func
 _shift_stack_right_
 
 
