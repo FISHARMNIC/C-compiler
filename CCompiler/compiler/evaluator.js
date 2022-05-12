@@ -165,13 +165,21 @@ global.evaluate = function (line) {
                 }
 
                 line[itemNo - 1] = {
-                    phrase: `_temp_reg_`,
+                    phrase: `_temp_reg_`, //do not chage this one
                     type: "assigned"
                 }
                 line.splice(itemNo, 3)
                 // FINISH THIS !!!!!!!!!!!!!! 123 FIND ME ABC !@# QWERTY \
             }
+        } else if (token.type == "type" && p1token().phrase == "(" && n1token().phrase == ")") { // ------- CAST -----
+            text_section.push( // HERE 
+                `mov %edx, ${n2token().phrase}`,
+                `mov _cast_${token.phrase}_, ${variableToRegister(token.phrase, "d")}`
+            )
+            line[--itemNo] = {phrase:`_cast_${token.phrase}_`, type:"assigned"}
+            line.splice(itemNo + 1, 3)
         }
+
 
         // ------------------------------------------------------------ FUNCTIONS ------------------------------------------------------------
         else if (token.phrase == "eq") { //evaluation
@@ -245,18 +253,70 @@ global.evaluate = function (line) {
         }
 
         else if (token.phrase == "if") {
-            text_section.push(
-                `push %eax; push %ebx`,
-                `mov %eax, ${n2token().phrase}`,
-                `mov %ebx, ${n4token().phrase}`,
-                `cmp %eax, %ebx`,
-                `pop %ebx; pop %eax`,
-                `${compares[n3token().phrase]} ${endifLabel(1)}`, //1
-                `jmp ${endifLabel(-1)}`, // 0
-                `${endifLabel(1)}:`,//1
-            )
+            // if ( p1 cmp p2 ) {?
+            // t n1 n2 n3  n4
+            if (p1token().phrase == "else") { // else if
+
+                var skip = endifLabel(1, 1)
+                // when it's formatted like "} else if(...)" instead of "} \n else if(...)" it breaks HERE ME BROKEN !# 123
+                text_section.splice(-2, 0, `jmp ${skip}`) 
+
+                text_section.push(
+                    `mov %eax, ${n2token().phrase}`,
+                    `mov %ebx, ${n4token().phrase}`,
+                    `cmp %eax, %ebx`,
+                    `${compares[n3token().phrase]} ${endifLabel(0, 1)}`, //jump to 1, true
+                    `jmp ${endifLabel(0, 1)}`, // jump to 0, false
+                    `${endifLabel(-2, 2)}:`,// label 1
+                )
+                parenthesisStack.push({
+                    bracket: "{",
+                    type: "conditional",
+                    data: {
+                        finish: endifLabel(-1, 3),
+                        subType: "else if",
+                        blockSkip: skip
+                    }
+                })
+            } else {
+
+                text_section.push(
+                    `mov %eax, ${n2token().phrase}`,
+                    `mov %ebx, ${n4token().phrase}`,
+                    `cmp %eax, %ebx`,
+                    `${compares[n3token().phrase]} ${endifLabel(0, 1)}`, //jump to 1, true
+                    `jmp ${endifLabel(0, 1)}`, // jump to 0, false
+                    `${endifLabel(-2, 2)}:`,// label 1
+                )
+                parenthesisStack.push({
+                    bracket: "{",
+                    type: "conditional",
+                    data: {
+                        finish: endifLabel(-1, 3),
+                        subType: "if"
+                    }
+                })
+            }
+
         }
 
+        else if (token.phrase == "else") {
+            parenthesisStack.push({
+                bracket: "{",
+                type: "conditional",
+                data: {
+                    subType: "else",
+                    finsih
+                }
+            })
+            // FINISH ELSE HERE BROKEN
+            if (n1token().phrase != "if") {
+                text_section.push(
+                    `jmp ${ifTerm()}`,
+                    `${endifLabel(1)}:`,
+                )
+            }
+        }
         else if (token.phrase == "while") {
             inWhile = true
             console.log("while pp", line)
@@ -280,9 +340,9 @@ global.evaluate = function (line) {
         else if (token.phrase == "&") {
             text_section.push(
                 `lea %eax, ${n1token().phrase}`,
-                `mov _temp_base_, %eax`
+                `mov ${use_tempbase()}, %eax`
             )
-            line[itemNo] = { phrase: "_temp_base_", type: "assinged" }
+            line[itemNo] = { phrase: use_tempbase(1), type: "assinged" }
             line.splice(itemNo + 1, 1)
         }
 
@@ -304,7 +364,7 @@ global.evaluate = function (line) {
             console.log("RETURN", line.slice(itemNo + 2, -2).map(x => x.phrase).filter(x => x != ","))
             return;
         }
-        else if (isDefined(n1token()) ? n1token().phrase == "(" : false) {
+        else if (isDefined(n1token()) ? n1token().phrase == "(" : false) { // current token is a unknown/function call
             console.log("PFUNC ------", line)
             if (token.type == "unassigned" && p1token().type == "type") { // |type unknown(...)| <- function definition
                 // add prototypes?
@@ -326,23 +386,56 @@ global.evaluate = function (line) {
                 line = [{ phrase: ';', type: 'any' }]
                 parenthesisStack.push({ bracket: "{", type: "function", returnType: p1token().phrase })
 
-            } else if ((isDefined(p1token()) ? true : false) && line.at(-2).phrase == ")" && line.at(-1).phrase == ";") {// |known(...);| <- function call
-                var pars = line.slice(itemNo + 2, -2).map(x => x.phrase).filter(x => x != ",")
+            } else { // function call
+                var cpos = itemNo
+                while(true) {
+                    if(line[cpos].phrase == ")") {
+                        break
+                    }
+                    cpos++
+                }
+                var pars = line.slice(itemNo + 2, cpos).map(x => x.phrase).filter(x => x != ",")
+                console.log("******", pars.join())
+                if (pars == ")") {
+                    console.log("yuh")
+                    pars = []
+                }
                 function_runFunction({
                     name: token.phrase,
                     parameters: pars
                 })
                 if (isDefined(variables[token.phrase])) {
-                    // shorten this to a one liner
-                    if (isDefined(variables[token.phrase].returnType)) {
-                        line[itemNo] = { phrase: `_return_${variables[token.phrase].returnType}_`, type: "assigned" }
-                        line.splice(itemNo + 1, pars.length)
-                    } else {
-                        line[itemNo] = { phrase: `_return_int_`, type: "assigned" }
-                        line.splice(itemNo + 1, pars.length)
-                    }
+                    line[itemNo] = { phrase: `_return_${variables[token.phrase].returnType}_`, type: "assigned" }
+                    line.splice(itemNo + 1, pars.length)
+                } else {
+                    console.log("BSPLICE", line)
+                    line[itemNo] = { phrase: `_return_int_`, type: "assigned" }
+                    line.splice(itemNo + 1, pars.length + 2)
+                    console.log("ASPLICE", line)
                 }
             }
+            
+            /*else if (isDefined(p1token()) && line.at(-2).phrase == ")" && line.at(-1).phrase == ";") {   // |known(...)| <- function call
+                var pars = line.slice(itemNo + 2, -2).map(x => x.phrase).filter(x => x != ",")
+                console.log("******", pars.join())
+                if (pars == ")") {
+                    console.log("yuh")
+                    pars = []
+                }
+                function_runFunction({
+                    name: token.phrase,
+                    parameters: pars
+                })
+                if (isDefined(variables[token.phrase])) {
+                    line[itemNo] = { phrase: `_return_${variables[token.phrase].returnType}_`, type: "assigned" }
+                    line.splice(itemNo + 1, pars.length)
+                } else {
+                    console.log("BSPLICE", line)
+                    line[itemNo] = { phrase: `_return_int_`, type: "assigned" }
+                    line.splice(itemNo + 1, pars.length + 2)
+                    console.log("ASPLICE", line)
+                }
+            } */
         } else if (token.phrase == "*") { // ------------------- POINTERS -------------------
             //console.log("CALLING OBAMA #AM", p1token())
             function SYMBOLTEST() {
@@ -399,10 +492,10 @@ global.evaluate = function (line) {
                 text_section.push(
                     `mov %edx, ${n1token().phrase}`,
                     `mov ${tempreg}, [%edx]`,
-                    `mov _temp_reg_, ${tempreg}`
+                    `mov ${use_tempreg()}, ${tempreg}`
                 )
                 line[itemNo] = {
-                    phrase: `_temp_reg_`,
+                    phrase: use_tempreg(1),
                     type: "assigned"
                 }
                 line.splice(itemNo + 1, 1)
@@ -429,6 +522,17 @@ global.evaluate = function (line) {
                         `# ------ END FUNCTION ------\n`
                     )
                     inFunction = { isTrue: false };
+                    parenthesisStack.pop()
+                } else if (parenthesisStack.at(-1).type == "conditional") {
+                    var recent = parenthesisStack.at(-1)
+                    //console.log(recent)
+                    if (recent.data.subType == "if") {
+                        text_section.push(`${recent.data.finish}:`)
+                    } else if (recent.data.subType == "else if") {
+                        text_section.push(`${recent.data.blockSkip}:`)
+                        text_section.push(`${recent.data.finish}:`)
+                    }
+                    leftOver_if_data = parenthesisStack.at(-1).data.finish
                     parenthesisStack.pop()
                 }
             }

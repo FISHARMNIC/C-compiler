@@ -14,6 +14,7 @@ global.isDefined = function (thing) {
 }
 
 for (; lineNumber < code.length; lineNumber++) {
+    reset_tb_tr();
     if (!(code[lineNumber][0] == "/" && code[lineNumber][1] == "/")) {
         lineContents = tokenize(code[lineNumber]);
         evaluate(lineContents);
@@ -30,9 +31,12 @@ ${bss_section.join("\n")}
 
 .section .data
 _return_int_: .long 0
-_return_char_: .byte 0 
-_stack_d1_: .long 0
-_stack_d2_: .long 0
+_return_char_: .byte 0
+ 
+_cast_char_: .byte 0
+_cast_short: .short 0
+_cast_int_: .long 0
+
 _mathResult: .long 0
 __final_message__: .asciz "program exit with code: "
 

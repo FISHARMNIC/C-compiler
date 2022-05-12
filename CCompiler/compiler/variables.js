@@ -43,13 +43,29 @@ global.variableSizes = {
     "char": 1,
     "short": 2
 }
+
+global.variableToRegister = function(type, regName) {
+    var outcome = `%e${regName}x`
+    switch(type) {
+        case "char":
+            outcome = `%${regName}l`
+            break
+        case "short":
+            outcome = `%${regName}x`
+    }
+    return outcome
+}
+
 global.mathOperations = [
     "+","/","x","-"
 ]
 
 global.variables = {
     _temp_reg_: {type: "int", pointer: false},
-    _temp_base_: {type: "int", pointer: false}
+    _temp_base_: {type: "int", pointer: false},
+    _cast_short_: {type: "short", pointer: false},
+    _cast_char_: {type: "byte", pointer: false},
+    _cast_int_: {type: "int", pointer: false}
 }
 
 global.compares = {
@@ -101,9 +117,17 @@ global.inFunction = {isTrue: false, name: false}
 global.inWhile = false
 
 var stringLabelCounter4 = 0
-global.endifLabel = function(increment = 0) {
-    stringLabelCounter4 += increment;
-    return "_if_" + (stringLabelCounter4 - increment)
+global.endifLabel = function(increment = 0, postincrement = 0) {
+    var old = stringLabelCounter4
+    stringLabelCounter4 += increment + postincrement;
+    return "_if_" + (old + increment)
+}
+
+var ifTermVar = 0
+global.ifTerm = function(am = 0) {
+    ret = `_ifEscape_${ifTermVar}`
+    ifTermVar += am
+    return ret
 }
 
 global.arrobj_includes = function(array, item) {
@@ -115,4 +139,5 @@ global.arrobj_includes = function(array, item) {
     return -1
 }
 
+global.leftOver_if_data;
 //arrobj_includes(jon, (x) => {x.phrase == "eq"})

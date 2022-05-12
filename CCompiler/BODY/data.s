@@ -27,7 +27,6 @@ _vga_entry:
     movw [%ebx + VGA_ADDR], %cx # writes the 16bit data into the memory address
     ret
 
-keyboard_out: .byte 0
 
 
 _remainder:
@@ -165,26 +164,7 @@ put_int_loop_start:
 .endm
 
 # ************************************************ INPUT ************************************************
-
-read_keyboard:
-    push %eax
-    push %ebx
-
-    mov %ebx, 0
-
-    read_keyboard_loop_start:
-    inb %al, KEYBOARD_PORT # store keycode in al
-    inc %ebx
-    cmp %al, 0
-    jne read_keyboard_loop_exit # found a key pressed, so return it
-    # otherwise, check for a timeout
-    cmp %ebx, 77 # there are 77 keys 
-    jne read_keyboard_loop_start # as long as i havent timed out, keep checking
-    read_keyboard_loop_exit:
-    movb keyboard_out, %al # save the resulting keycode
-    pop %ebx
-    pop %eax
-    ret
+// all function in lib.s
     
 # ************************************************ STRINGS ************************************************
 .macro strcmp str1, str2, len

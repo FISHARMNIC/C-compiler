@@ -190,3 +190,38 @@ global.function_runFunction = function ({ name, parameters }) {
         `_shift_stack_right_\n`
     )
 }
+
+var tempbase_counter = 0
+var highest_tempbase_used = 0
+global.use_tempbase = function(amt = 0) {
+    if(tempbase_counter + 1 > highest_tempbase_used) {
+        function_createVariable({
+            type: "long",
+            name: `_temp_base_${tempbase_counter}_`,
+            value: 0
+        })
+        highest_tempbase_used++
+    }
+    tempbase_counter += amt
+    return `_temp_base_${tempbase_counter - amt}_`
+}
+
+var tempreg_counter = 0
+var highest_tempreg_used = 0
+global.use_tempreg = function(amt = 0) {
+    if(tempreg_counter + 1 > highest_tempreg_used) {
+        function_createVariable({
+            type: "long",
+            name: `_temp_reg_${tempreg_counter}_`,
+            value: 0
+        })
+        highest_tempreg_used++ // fix
+    }
+    tempreg_counter += amt
+    return `_temp_reg_${tempreg_counter - amt}_`
+}
+
+global.reset_tb_tr = function() {
+    tempbase_counter = 0
+    tempreg_counter = 0
+}
