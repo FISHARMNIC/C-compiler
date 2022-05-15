@@ -191,26 +191,28 @@ global.evaluate = function (line) {
                 line.splice(itemNo, 3)
                 // FINISH THIS !!!!!!!!!!!!!! 123 FIND ME ABC !@# QWERTY \
             }
-        // ---------------------------- CAST -----------------------------------
+            // ---------------------------- CAST -----------------------------------
         } else if (token.type == "type" && p1token().phrase == "(" && n1token().phrase == ")" && token.phrase != "void") {
-            if (n2token().phrase == "(") {
-                console.log("UNIMPLEMENTED BRACKET CAST")
-                process.exit(0)
-                var len = findClosePar() - itemNo
-                text_section.push( // HERE 
-                    `mov %edx, ${n2token().phrase}`,
-                    `mov _cast_${token.phrase}_, ${variableToRegister(token.phrase, "d")}`
-                )
-                line[--itemNo] = { phrase: `_cast_${token.phrase}_`, type: "assigned" }
-                line.splice(itemNo + 1, len)
-            } else {
+            if (isDefined(p2token().phrase) && !macros.includes(p2token().phrase)) {
+                if (n2token().phrase == "(") {
+                    console.log("UNIMPLEMENTED BRACKET CAST")
+                    process.exit(0)
+                    var len = findClosePar() - itemNo
+                    text_section.push( // HERE 
+                        `mov %edx, ${n2token().phrase}`,
+                        `mov _cast_${token.phrase}_, ${variableToRegister(token.phrase, "d")}`
+                    )
+                    line[--itemNo] = { phrase: `_cast_${token.phrase}_`, type: "assigned" }
+                    line.splice(itemNo + 1, len)
+                } else {
 
-                text_section.push( // HERE 
-                    `mov %edx, ${n2token().phrase}`,
-                    `mov _cast_${token.phrase}_, ${variableToRegister(token.phrase, "d")}`
-                )
-                line[--itemNo] = { phrase: `_cast_${token.phrase}_`, type: "assigned" }
-                line.splice(itemNo + 1, 3)
+                    text_section.push( // HERE 
+                        `mov %edx, ${n2token().phrase}`,
+                        `mov _cast_${token.phrase}_, ${variableToRegister(token.phrase, "d")}`
+                    )
+                    line[--itemNo] = { phrase: `_cast_${token.phrase}_`, type: "assigned" }
+                    line.splice(itemNo + 1, 3)
+                }
             }
         }
 
@@ -284,6 +286,23 @@ global.evaluate = function (line) {
             text_section.push(`mov _mathResult, %eax`, `pop %eax\n`)
             line[itemNo] = { phrase: "_mathResult", type: "assigned" }
             line.splice(itemNo + 1, scanPos - itemNo)
+        }
+
+        else if (token.phrase == "alloc") {
+            data_section.push(`${stringLiteralLabel()}: .fill ${n2token().phrase}, ${n4token().phrase}`)
+            line[itemNo] = { phrase: stringLiteralLabel(1), type: "assigned" }
+            line.splice(itemNo + 1, 5)
+        }
+
+        else if (token.phrase == "asm") {
+            text_section.push(n1token().phrase)
+            line.splice(itemNo + 1, 2)
+        }
+
+        else if (token.phrase == "sizeof") {
+            // HERE ADD SIZEOF POINTER
+            line[itemNo] = { phrase: variableSizes[n2token().phrase], type: "static_integer" }
+            line.splice(itemNo + 1, 2)
         }
 
         else if (token.phrase == "if") {
@@ -564,16 +583,18 @@ global.evaluate = function (line) {
                 line.splice(itemNo + 1, 1)
                 console.log("RIPBOZO", line)
 
-            } 
+            }
             // -------------------- POINTER CAST ----------- 
             else if (n1token().phrase == ")" && p1token().type == "type" && p2token().phrase == "(") {
-                // HERE add (type *)(...) aka cast with parenthesis
-                text_section.push( // HERE 
-                    `mov %edx, ${n2token().phrase}`,
-                    `mov _cast_pointer_${p1token().phrase}_, ${variableToRegister(p1token().phrase, "d")}`
-                )
-                line[itemNo - 2] = { phrase: `_cast_pointer_${p1token().phrase}_`, type: "assigned" }
-                line.splice((itemNo -= 2) + 1, 4)
+                // HERE add (type *)(...) aka cast with parenthesis nad support for other macros
+                if (isDefined(p2token().phrase) && !macros.includes(p2token().phrase)) {
+                    text_section.push( // HERE 
+                        `mov %edx, ${n2token().phrase}`,
+                        `mov _cast_pointer_${p1token().phrase}_, ${variableToRegister(p1token().phrase, "d")}`
+                    )
+                    line[itemNo - 2] = { phrase: `_cast_pointer_${p1token().phrase}_`, type: "assigned" }
+                    line.splice((itemNo -= 2) + 1, 4)
+                }
             }
         }
         else if (token.phrase == "}") { // at the end of a function

@@ -3,6 +3,8 @@ global.data_section = []
 global.text_section = []
 global.init_section = []
 
+global.macros = ["sizeof"]
+
 global.separators = [
     ' ',
     '(',

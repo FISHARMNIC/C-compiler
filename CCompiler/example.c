@@ -14,7 +14,7 @@ void testFunction(int num1, int num2, int num3)
 // comment
 int main(void)
 {
-    quandale = 100;
+    quandale = alloc(sizeof(int), 1);
     *quandale = 2;
     jon = 3;
 
