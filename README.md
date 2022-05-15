@@ -55,4 +55,4 @@ See notes.txt for things that are not currently working
 * Pointer casting
 * String literals with spaces in them
 * sizeof
-* static allocation "alloc"
+* static allocation "alloc(type, size)"
