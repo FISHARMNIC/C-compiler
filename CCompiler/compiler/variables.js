@@ -64,8 +64,11 @@ global.variables = {
     _temp_reg_: {type: "int", pointer: false},
     _temp_base_: {type: "int", pointer: false},
     _cast_short_: {type: "short", pointer: false},
-    _cast_char_: {type: "byte", pointer: false},
-    _cast_int_: {type: "int", pointer: false}
+    _cast_char_: {type: "char", pointer: false},
+    _cast_int_: {type: "int", pointer: false},
+    _cast_pointer_short_: {type: "short", pointer: true},
+    _cast_pointer_char_: {type: "char", pointer: true},
+    _cast_pointer_int_: {type: "int", pointer: true}
 }
 
 global.compares = {

@@ -6,13 +6,15 @@ todo:
 - add initializing a vairable with a dynamic value, ex "int jon = eq(1+2);"
 - add undefined integer and char types: "int jon;"
 - finish if statements
-- add "tempReg2" and "tempBase2" for multiple access points
-- cannot index "char *" types with bracket notation when passed as parameters
 - assembly functions currently return integers
 - finish input
 - fix "if" "else if" "else" statements having to be formatted specifically 
 - fix inline function calls for while statments "while(get_char() != 'A')"
 - fix the editor criticizing function pointers
+- fix function pointers needing to be passed with "&" 
+- add variadic functions
+- cannot define string arrays like |char name[] = "..."|
+- check phone reminders for more
 
 if: function (v, cmp, v2) {
         main_kernel_data.push(

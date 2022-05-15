@@ -49,7 +49,21 @@ global.evaluate = function (line) {
             return word
 
         }
-        if(tryFunctionPar(token.phrase) != token.phrase) {
+
+        function findClosePar() {
+            var cpos = itemNo
+            while (true) {
+                if (line[cpos].phrase == ")") {
+                    return cpos
+                }
+                if (cpos > line.length) {
+                    return -1
+                }
+                cpos++
+            }
+        }
+
+        if (tryFunctionPar(token.phrase) != token.phrase) {
             line[itemNo] = {
                 phrase: tryFunctionPar(token.phrase),
                 type: "assigned"
@@ -177,13 +191,27 @@ global.evaluate = function (line) {
                 line.splice(itemNo, 3)
                 // FINISH THIS !!!!!!!!!!!!!! 123 FIND ME ABC !@# QWERTY \
             }
-        } else if (token.type == "type" && p1token().phrase == "(" && n1token().phrase == ")" && token.phrase != "void") { // ------- CAST -----
-            text_section.push( // HERE 
-                `mov %edx, ${n2token().phrase}`,
-                `mov _cast_${token.phrase}_, ${variableToRegister(token.phrase, "d")}`
-            )
-            line[--itemNo] = { phrase: `_cast_${token.phrase}_`, type: "assigned" }
-            line.splice(itemNo + 1, 3)
+        // ---------------------------- CAST -----------------------------------
+        } else if (token.type == "type" && p1token().phrase == "(" && n1token().phrase == ")" && token.phrase != "void") {
+            if (n2token().phrase == "(") {
+                console.log("UNIMPLEMENTED BRACKET CAST")
+                process.exit(0)
+                var len = findClosePar() - itemNo
+                text_section.push( // HERE 
+                    `mov %edx, ${n2token().phrase}`,
+                    `mov _cast_${token.phrase}_, ${variableToRegister(token.phrase, "d")}`
+                )
+                line[--itemNo] = { phrase: `_cast_${token.phrase}_`, type: "assigned" }
+                line.splice(itemNo + 1, len)
+            } else {
+
+                text_section.push( // HERE 
+                    `mov %edx, ${n2token().phrase}`,
+                    `mov _cast_${token.phrase}_, ${variableToRegister(token.phrase, "d")}`
+                )
+                line[--itemNo] = { phrase: `_cast_${token.phrase}_`, type: "assigned" }
+                line.splice(itemNo + 1, 3)
+            }
         }
 
 
@@ -360,7 +388,6 @@ global.evaluate = function (line) {
             text_section.push(`${token.phrase} ${line.map(x => x.phrase).slice(itemNo + 1, internal_macros[token.phrase] + 1)}`)
         }
 
-
         //NEEDS TO BE AT THE END
         else if (token.phrase == "return") {
             text_section.push(
@@ -394,7 +421,7 @@ global.evaluate = function (line) {
 
             } else { // function call
                 if (token.phrase == ")") { // |(variable)(...)| Function as pointer
-                    
+
                     var cpos = itemNo + 1
                     while (true) {
                         if (line[cpos].phrase == ")") {
@@ -409,7 +436,7 @@ global.evaluate = function (line) {
                         console.log("yuh")
                         pars = []
                     }
-                    
+
                     function_runFunction({
                         name: tryFunctionPar(p1token().phrase),
                         parameters: pars,
@@ -470,7 +497,9 @@ global.evaluate = function (line) {
                     console.log("ASPLICE", line)
                 }
             } */
-        } else if (token.phrase == "*") { // ------------------- POINTERS -------------------
+        }
+        // -------------------------------------- POINTERS --------------------------------------
+        else if (token.phrase == "*") { // 
             //console.log("CALLING OBAMA #AM", p1token())
             function SYMBOLTEST() {
                 var output = arrobj_includes(line, (x) => x.phrase == "eq")
@@ -535,6 +564,16 @@ global.evaluate = function (line) {
                 line.splice(itemNo + 1, 1)
                 console.log("RIPBOZO", line)
 
+            } 
+            // -------------------- POINTER CAST ----------- 
+            else if (n1token().phrase == ")" && p1token().type == "type" && p2token().phrase == "(") {
+                // HERE add (type *)(...) aka cast with parenthesis
+                text_section.push( // HERE 
+                    `mov %edx, ${n2token().phrase}`,
+                    `mov _cast_pointer_${p1token().phrase}_, ${variableToRegister(p1token().phrase, "d")}`
+                )
+                line[itemNo - 2] = { phrase: `_cast_pointer_${p1token().phrase}_`, type: "assigned" }
+                line.splice((itemNo -= 2) + 1, 4)
             }
         }
         else if (token.phrase == "}") { // at the end of a function
