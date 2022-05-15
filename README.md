@@ -45,7 +45,12 @@ See notes.txt for things that are not currently working
 * Pointer parameters
 * String literals
 * "If" and "If else" statements
+* Unlimited amount of indirect references per line
 
 ## May 12
 * Casting
 * Calling functions from pointers
+
+## May 14
+* Pointer casting
+* String literals with spaces in them
