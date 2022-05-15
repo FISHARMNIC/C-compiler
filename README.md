@@ -54,3 +54,5 @@ See notes.txt for things that are not currently working
 ## May 14
 * Pointer casting
 * String literals with spaces in them
+* sizeof
+* static allocation "alloc"
