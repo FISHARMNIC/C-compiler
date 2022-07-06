@@ -1,6 +1,4 @@
-char *pointer = 0xB8000;
 char exampleString[] = "chicken";
-char qd[] = "chicken";
 char *string = 0;
 
 int main() {

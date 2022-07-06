@@ -1,6 +1,6 @@
 int main() {
-    int jon = 10;
-    char *pointer = 10;
+    int jon = alloc(sizeof(int));
+    char *pointer = jon;
     *pointer = 'A';
     put_char(* (char *)jon);
 }

@@ -1,7 +1,7 @@
 todo:
 
 - add an unsafe quick evaluator
-- add casting
+
 - fix "*" and "&" not being implemented in mathematics
 - add initializing a vairable with a dynamic value, ex "int jon = eq(1+2);"
 - add undefined integer and char types: "int jon;"
@@ -10,13 +10,15 @@ todo:
 - finish input
 - fix "if" "else if" "else" statements having to be formatted specifically 
 - fix inline function calls for while statments "while(get_char() != 'A')"
+- not sure pointers work in the comparative statement of a while
 - fix the editor criticizing function pointers
 - fix function pointers needing to be passed with "&" 
+- fix divide not working? (crashing)
 - add variadic functions
-- cannot define string arrays like |char name[] = "..."|
+- cannot define string arrays like |char name[] = "..."| in functions
 - add sizeof pointer
 - add macros, but also note the casting could be activated by macros like "mymacro(int)"
-
+- add comparing char arrays with bytes. currently compares extended registers, only compare low registers instead
 - check phone reminders for more
 
 if: function (v, cmp, v2) {

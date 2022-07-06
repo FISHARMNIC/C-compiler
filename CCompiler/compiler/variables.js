@@ -70,7 +70,8 @@ global.variables = {
     _cast_int_: {type: "int", pointer: false},
     _cast_pointer_short_: {type: "short", pointer: true},
     _cast_pointer_char_: {type: "char", pointer: true},
-    _cast_pointer_int_: {type: "int", pointer: true}
+    _cast_pointer_int_: {type: "int", pointer: true},
+    _mathResult: {type: "int", pointer: false}
 }
 
 global.compares = {

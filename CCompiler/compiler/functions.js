@@ -19,6 +19,13 @@ global.function_createVariable = function ({ type, name, value, pointer = false 
     }
     console.log(clc.red(`--- DEFINED:`), clc.blue(`${pointer ? "pointer" : ""}`), clc.green(`${type} ${name}: ${value}`))
     if (isDefined(value)) { // if its defined, use .data
+        if(Object.keys(variables).includes(value) || String(value).includes("_literal_")) { // if you are setting to a dynamic value on initiation
+            init_section.push(
+                `mov %edx, ${value}`,
+                `mov ${name}, %edx`
+            )
+            value = 0
+        }
         data_section.push(`${name}: ${variableTypes[useT]} ${value}`)
     } else { // otherwise use .bss for the uninitialized data
         bss_section.push(`${name}: ${variableTypes[useT]} 0`)
@@ -98,9 +105,9 @@ global.function_setPointer = function ({ name, value }) {
                 tempreg = "cx"
         }
     }
-
+    console.log("----------- HERHENERFI ------------")
     text_section.push(
-        `\nmov %edx, ${name}`,
+        `\n#TEST\nmov %edx, ${name}`,
         `mov %ecx, ${value}`,
         `mov [%edx], %${tempreg}`
     )
@@ -136,7 +143,6 @@ global.function_createFunction = function ({ name, parameters, returnType }) {
         for (i = parameters.length - 2; i >= 0; i -= 2) {
             var type = parameters[i]
             if (parameters[i + 2] == "*") {
-                console.log("big booty latinas")
                 i--;
             }
             var sname = `_${name}_${parameters[i + 1]}_`

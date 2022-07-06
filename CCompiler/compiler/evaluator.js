@@ -86,11 +86,14 @@ global.evaluate = function (line) {
                     })
                 } else if (inFunction.isTrue) { // @#$
                     if (Object.keys(variables).includes(`_${inFunction.name}_${p1token().phrase}_`)) {
+                        //console.log("11111-----------###",p1token().phrase, JSON.stringify(line))
                         if (isDefined(p2token()) && p2token().phrase == "*") { // |*known = ... | <- value at pointer redefinition
+                            //console.log("TRUEURUEUREIERHRUIEHRUIEHUEIRHIUEH")
                             function_setPointer({
                                 name: `_${inFunction.name}_${p1token().phrase}_`,
                                 value: n1token().phrase
                             })
+                            //} else if(isDefined(p2token()) && )
                         } else { // normal redefintion
                             function_setVariable({
                                 name: `_${inFunction.name}_${p1token().phrase}_`,
@@ -245,6 +248,7 @@ global.evaluate = function (line) {
                             return [
                                 `push %ebx`,
                                 `mov %ebx, ${inD.next}`,
+                                `xor %edx, %edx`,
                                 `div %ebx`,
                                 `pop %ebx`
                             ]
@@ -289,13 +293,17 @@ global.evaluate = function (line) {
         }
 
         else if (token.phrase == "alloc") {
-            data_section.push(`${stringLiteralLabel()}: .fill ${n2token().phrase}, ${n4token().phrase}`)
+            data_section.push(`.comm ${stringLiteralLabel()} ${n2token().phrase}`)
+            text_section.push(
+                `lea %edx, ${stringLiteralLabel()}`,
+                `mov ${stringLiteralLabel()}, %edx`,
+            )
             line[itemNo] = { phrase: stringLiteralLabel(1), type: "assigned" }
-            line.splice(itemNo + 1, 5)
+            line.splice(itemNo + 1, 4)
         }
 
         else if (token.phrase == "asm") {
-            text_section.push(n1token().phrase)
+            text_section.push(n2token().phrase.slice(1, -1))
             line.splice(itemNo + 1, 2)
         }
 
@@ -314,14 +322,25 @@ global.evaluate = function (line) {
                 // when it's formatted like "} else if(...)" instead of "} \n else if(...)" it breaks HERE ME BROKEN !# 123
                 text_section.splice(-2, 0, `jmp ${skip}`)
 
-                text_section.push(
-                    `mov %eax, ${n2token().phrase}`,
-                    `mov %ebx, ${n4token().phrase}`,
-                    `cmp %eax, %ebx`,
-                    `${compares[n3token().phrase]} ${endifLabel(0, 1)}`, //jump to 1, true
-                    `jmp ${endifLabel(0, 1)}`, // jump to 0, false
-                    `${endifLabel(-2, 2)}:`,// label 1
-                )
+                if (Object.keys(variables).includes(n2token().phrase) && variables[n2token().phrase].type == "char") {
+                    text_section.push(
+                        `mov %al, ${n2token().phrase}`,
+                        `mov %bl, ${n4token().phrase}`,
+                        `cmp %al, %bl`,
+                        `${compares[n3token().phrase]} ${endifLabel(0, 1)}`, //jump to 1, true
+                        `jmp ${endifLabel(0, 1)}`, // jump to 0, false
+                        `${endifLabel(-2, 2)}:`,// label 1
+                    )
+                } else {
+                    text_section.push(
+                        `mov %eax, ${n2token().phrase}`,
+                        `mov %ebx, ${n4token().phrase}`,
+                        `cmp %eax, %ebx`,
+                        `${compares[n3token().phrase]} ${endifLabel(0, 1)}`, //jump to 1, true
+                        `jmp ${endifLabel(0, 1)}`, // jump to 0, false
+                        `${endifLabel(-2, 2)}:`,// label 1
+                    )
+                }
                 parenthesisStack.push({
                     bracket: "{",
                     type: "conditional",
@@ -359,7 +378,7 @@ global.evaluate = function (line) {
                 type: "conditional",
                 data: {
                     subType: "else",
-                    finsih
+                    // FINISH
                 }
             })
             // FINISH ELSE HERE BROKEN
@@ -417,7 +436,7 @@ global.evaluate = function (line) {
             return;
         }
         else if (isDefined(n1token()) ? (n1token().phrase == "(" || (n1token().phrase == ")" && n2token().phrase == "(")) : false) { // current token is a unknown/function call
-            console.log("PFUNC ------", line, itemNo)
+            // console.log("PFUNC ------", line, itemNo)
             if (token.type == "unassigned" && p1token().type == "type") { // |type unknown(...)| <- function definition
                 // add prototypes?
                 console.log("BAAANNAAAAA", line.slice(itemNo + 2, -1).map(x => x.phrase).filter(x => x != ","))
@@ -461,10 +480,10 @@ global.evaluate = function (line) {
                         parameters: pars,
                         indirect: true
                     })
-                    console.log("BSPLICE", line)
+                    //console.log("BSPLICE", line)
                     line[itemNo] = { phrase: `_return_int_`, type: "assigned" }
                     line.splice(itemNo + 1, pars.length + 2)
-                    console.log("ASPLICE", line)
+                    //console.log("ASPLICE", line)
                 } else { // normal function
                     var cpos = itemNo
                     while (true) {
@@ -487,10 +506,10 @@ global.evaluate = function (line) {
                         line[itemNo] = { phrase: `_return_${variables[token.phrase].returnType}_`, type: "assigned" }
                         line.splice(itemNo + 1, pars.length)
                     } else {
-                        console.log("BSPLICE", line)
+                        //console.log("BSPLICE", line)
                         line[itemNo] = { phrase: `_return_int_`, type: "assigned" }
                         line.splice(itemNo + 1, pars.length + 2)
-                        console.log("ASPLICE", line)
+                        //console.log("ASPLICE", line)
                     }
                 }
             }
@@ -519,7 +538,7 @@ global.evaluate = function (line) {
         }
         // -------------------------------------- POINTERS --------------------------------------
         else if (token.phrase == "*") { // 
-            //console.log("CALLING OBAMA #AM", p1token())
+            //console.log("CALLING OBAMA 3AM", p1token())
             function SYMBOLTEST() {
                 var output = arrobj_includes(line, (x) => x.phrase == "eq")
                 var is_times_symbol = false
@@ -571,7 +590,8 @@ global.evaluate = function (line) {
                         tempreg = "%dx"
                 }
                 // HERE COMPAING POINTER 
-                text_section.push(
+                text_section.push( // HERE !123 QWE REMOVE FIRST LINE IF BROKEN MAYBE IDK 
+                    `movw ${use_tempreg()}, 0`,
                     `mov %edx, ${n1token().phrase}`,
                     `mov ${tempreg}, [%edx]`,
                     `mov ${use_tempreg()}, ${tempreg}`
@@ -581,7 +601,7 @@ global.evaluate = function (line) {
                     type: "assigned"
                 }
                 line.splice(itemNo + 1, 1)
-                console.log("RIPBOZO", line)
+                //console.log("RIPBOZO", line)
 
             }
             // -------------------- POINTER CAST ----------- 
@@ -590,9 +610,11 @@ global.evaluate = function (line) {
                 if (isDefined(p2token().phrase) && !macros.includes(p2token().phrase)) {
                     text_section.push( // HERE 
                         `mov %edx, ${n2token().phrase}`,
-                        `mov _cast_pointer_${p1token().phrase}_, ${variableToRegister(p1token().phrase, "d")}`
+                        `mov _cast_pointer_${p1token().phrase}_, %edx`
+                        //`mov _cast_pointer_${p1token().phrase}_, ${variableToRegister(p1token().phrase, "d")}`
                     )
                     line[itemNo - 2] = { phrase: `_cast_pointer_${p1token().phrase}_`, type: "assigned" }
+                    //line[itemNo - 2] = { phrase: `_cast_pointer_int_`, type: "assigned" }
                     line.splice((itemNo -= 2) + 1, 4)
                 }
             }

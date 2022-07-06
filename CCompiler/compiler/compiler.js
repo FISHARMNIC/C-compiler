@@ -37,8 +37,8 @@ _cast_char_: .byte 0
 _cast_short_: .short 0
 _cast_int_: .long 0
 
-_cast_pointer_char_: .byte 0
-_cast_pointer_short_: .short 0
+_cast_pointer_char_: .long 0
+_cast_pointer_short_: .long 0
 _cast_pointer_int_: .long 0
 
 _mathResult: .long 0
