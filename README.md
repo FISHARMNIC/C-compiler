@@ -1,5 +1,6 @@
 # C-compiler
-A bare-bones C compiler built with nodeJS and GNU assembly  
+A bare-bones C compiler built with nodeJS  
+Compiles into GNU assembly and ran independently on a virtual machine  
 Note that NodeJS v16 is needed along with xxoriso, GNU binutils, and QEMU  
 
 compile with `./compile.sh example.c`
@@ -24,6 +25,13 @@ This compiler is slightly different than all others, please read this
 
 ---
 See notes.txt for things that are not currently working
+---
+# More Notes:
+* All assembly runs standalone  
+* This means I have built my own tty driver, keyboard handler etc.  
+* This also means that many functions may not work properly  
+* However, you can always make your own drivers
+* Feel free to look into `BODY/lib.s` or [here](https://wiki.osdev.org/Main_Page)
 
 # Changelog - 2022
 ## April 24
