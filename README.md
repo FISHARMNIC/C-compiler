@@ -56,3 +56,12 @@ See notes.txt for things that are not currently working
 * String literals with spaces in them
 * sizeof
 * static allocation "alloc(type, size)"
+
+## July 6
+* Fixed pointer casting
+* Fixed crash on divide/remainder
+
+## July 7
+* "& now supported in eq() as "AND"
+* Early returns
+* Added array modification
