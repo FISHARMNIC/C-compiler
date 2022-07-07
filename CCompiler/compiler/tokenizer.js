@@ -4,7 +4,9 @@ global.tokenize = function (lineContents) {
     var lastFrontSeparator = ' ';
 
     if (lineContents == []) return [];
-    /* 
+
+    /*
+    return: 
     {
         phrase: token,
         type: treatment

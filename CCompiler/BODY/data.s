@@ -211,15 +211,15 @@ _strcmp_not_equal:
 
 # ************************************************ ARRAYS ************************************************
 
-.macro _index_array_ base, blockSize, address
+.macro _index_array_ base, blockSize, address, reg_register, base_register
     mov %eax, \blockSize
     mov %ebx, \address
     mul %ebx
     mov %ebx, \base
     add %ebx, %eax
-    mov _temp_base_, %ebx
+    mov \base_register, %ebx
     mov %ebx, [%ebx]
-    mov _temp_reg_, %ebx
+    mov \reg_register, %ebx
 .endm
 
 .macro set_array_index_to arr, index, offset, to

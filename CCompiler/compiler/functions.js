@@ -17,7 +17,7 @@ global.function_createVariable = function ({ type, name, value, pointer = false 
     if (pointer) {
         useT = "int"
     }
-    console.log(clc.red(`--- DEFINED:`), clc.blue(`${pointer ? "pointer" : ""}`), clc.green(`${type} ${name}: ${value}`))
+    console.log(clc.red(`--- DEFINED:`), clc.blue(`${pointer ? "pointer" : ""}`), clc.blue(type), clc.green(name), "==>", clc.blue(isDefined(value)? value : "undefined"))
     if (isDefined(value)) { // if its defined, use .data
         if(Object.keys(variables).includes(value) || String(value).includes("_literal_")) { // if you are setting to a dynamic value on initiation
             init_section.push(
@@ -37,7 +37,7 @@ global.function_createBuffer = function ({ type, name, value, size = -1, pointer
         type = type.slice(0, -1);
         pointer = true
     }
-    console.log(clc.red(`--- DEFINED BUFFER:`), clc.blue(`${pointer ? "pointer" : ""}`), clc.green(`${type} ${name} [${size}] : ${value}`))
+    console.log(clc.red(`--- DEFINED BUFFER:`), clc.blue(`${pointer ? "pointer" : ""}`), clc.blue(type), clc.green(name), clc.red(`[${size}]`), "==>", clc.blue(isDefined(value)? value : "undefined"))
     if (isDefined(value)) { // if its defined, use .data
         if (value[0] == '"' && value.at(-1) == '"') { //string literal
             data_section.push(
@@ -105,9 +105,9 @@ global.function_setPointer = function ({ name, value }) {
                 tempreg = "cx"
         }
     }
-    console.log("----------- HERHENERFI ------------")
+    //console.log("----------- HERHENERFI ------------")
     text_section.push(
-        `\n#TEST\nmov %edx, ${name}`,
+        `mov %edx, ${name}`,
         `mov %ecx, ${value}`,
         `mov [%edx], %${tempreg}`
     )
@@ -147,7 +147,7 @@ global.function_createFunction = function ({ name, parameters, returnType }) {
             }
             var sname = `_${name}_${parameters[i + 1]}_`
             var tempreg = "%edx"
-            console.log(sname)
+            console.log(clc.blue("-> parameter"), sname)
             if (!variables[sname].pointer) {
                 switch (variables[sname].type) {
                     case "char":

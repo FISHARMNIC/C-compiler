@@ -3,11 +3,11 @@ const fs = require("fs");
 require("./variables.js");
 require("./tokenizer.js");
 require("./evaluator.js");
+require("./preprocessor.js")
 
-var code = String(fs.readFileSync(process.argv[2])).split("\n");
-
-var lineNumber = 0;
-var lineContents;
+global.code = String(fs.readFileSync(process.argv[2])).split("\n");
+global.lineNumber = 0;
+global.lineContents;
 
 global.isDefined = function (thing) {
     return (typeof thing !== 'undefined');
@@ -15,10 +15,16 @@ global.isDefined = function (thing) {
 
 for (; lineNumber < code.length; lineNumber++) {
     reset_tb_tr();
-    if (!(code[lineNumber][0] == "/" && code[lineNumber][1] == "/")) {
         lineContents = tokenize(code[lineNumber]);
-        evaluate(lineContents);
-    }
+
+        var preturn = preprocess()
+        if(preturn != "skip") {
+            if(preturn == "retoken") {
+                lineContents = tokenize(lineContents)
+                console.log("retoken to", lineContents)
+            }
+            evaluate(lineContents);
+        }
 }
 fs.writeFileSync("../code.s",
     `

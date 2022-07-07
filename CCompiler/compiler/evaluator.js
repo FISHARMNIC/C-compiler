@@ -21,6 +21,7 @@ global.evaluate = function (line) {
     var p1token;
     var p2token;
     var p3token;
+    var p4token;
     var n1token;
     var n2token;
     var n3token;
@@ -36,6 +37,7 @@ global.evaluate = function (line) {
         p1token = () => isDefined(line[itemNo - 1]) ? line[itemNo - 1] : false;
         p2token = () => isDefined(line[itemNo - 2]) ? line[itemNo - 2] : false;
         p3token = () => isDefined(line[itemNo - 3]) ? line[itemNo - 3] : false;
+        p4token = () => isDefined(line[itemNo - 4]) ? line[itemNo - 4] : false;
 
         n1token = () => isDefined(line[itemNo + 1]) ? line[itemNo + 1] : false;
         n2token = () => isDefined(line[itemNo + 2]) ? line[itemNo + 2] : false;
@@ -118,6 +120,33 @@ global.evaluate = function (line) {
                         value: n1token().phrase
                     })
                 }
+            } else if (p1token().phrase == "]") {
+                // WORK ON HERE 123 QWERTY NEED TO ADD arr[variable] = data;
+                console.log("fjeriu", lineContents)
+                if(p4token().type == "assigned") {
+                    var arr = p4token().phrase
+                    var ind = p2token().phrase
+
+                    var tempreg = "%ebx"
+                    switch (variables[n1token().phrase].type) {
+                        case "char":
+                            tempreg = "%bl"
+                            break
+                        case "short":
+                            tempreg = "%bx"
+                    }
+
+                    text_section.push(
+                        `_index_array_ ${arr}, ${variableSizes[variables[p4token().phrase].type]}, ${ind}, ${use_tempreg(1)}, ${use_tempbase()}`,
+                        `mov %edx, ${use_tempbase(1)}`,
+                        `push %ebx`,
+                        `mov ${tempreg}, ${n1token().phrase}`,
+                        `mov [%edx], ${tempreg}`,
+                        `pop %ebx`
+                    )
+                } else {
+                    console.error("Unable to modify undefined array", p4token().phrase)
+                }
             }
 
             if (p1token().phrase != "]") {
@@ -126,7 +155,7 @@ global.evaluate = function (line) {
         } else if (token.phrase == "[") { // ------------------- BUFFER DEFINITION -------------------
             if ((!inFunction.isTrue && !isDefined(variables[`_${inFunction.name}_${p1token().phrase}_`])) && p1token().type == "unassigned") { // |type unknown[...]| <- buffer definition
                 // ADD ARRAY INITIALIZERS : ex. {1,2,3} 
-                console.log(clc.red("QUANDALE"), n1token())
+                //console.log(clc.red("QUANDALE"), n1token())
                 if (p2token().type == "type") {
                     if (n1token().phrase == "]") { // undefined length, ex. string
                         if (n3token().phrase == "{") {
@@ -182,13 +211,13 @@ global.evaluate = function (line) {
                 if (inFunction.isTrue && isDefined(variables[`_${inFunction.name}_${p1token().phrase}_`])) { // if in a function and you are accessing a parameter
                     var p1 = `_${inFunction.name}_${p1token().phrase}_`
                     console.log("hog rider")
-                    text_section.push(`_index_array_ ${p1}, ${variableSizes[variables[p1].type]}, ${n1token().phrase}`)
+                    text_section.push(`_index_array_ ${p1}, ${variableSizes[variables[p1].type]}, ${n1token().phrase}, ${use_tempreg()}, ${use_tempbase(1)}`)
                 } else {
-                    text_section.push(`_index_array_ ${p1token().phrase}, ${variableSizes[variables[p1token().phrase].type]}, ${n1token().phrase}`)
+                    text_section.push(`_index_array_ ${p1token().phrase}, ${variableSizes[variables[p1token().phrase].type]}, ${n1token().phrase}, ${use_tempreg()}, ${use_tempbase(1)}`)
                 }
 
                 line[itemNo - 1] = {
-                    phrase: `_temp_reg_`, //do not chage this one
+                    phrase: `${use_tempreg(1)}`, //do not chage this one
                     type: "assigned"
                 }
                 line.splice(itemNo, 3)
@@ -223,14 +252,19 @@ global.evaluate = function (line) {
         // ------------------------------------------------------------ FUNCTIONS ------------------------------------------------------------
         else if (token.phrase == "eq") { //evaluation
             var scanPos = itemNo + 3
-            text_section.push(`\npush %eax`, `mov %eax, ${line[itemNo + 2].phrase}`)
+            text_section.push(
+                `\npusha`, 
+                `xor %eax, %eax`,
+                `xor %ebx, %ebx`,
+                `xor %ecx, %ecx`,
+                `mov %eax, ${line[itemNo + 2].phrase}`)
             while (line[scanPos].phrase != ")") {
                 var item = {
                     current: line[scanPos].phrase,
                     previous: line[scanPos - 1].phrase,//parseInt(code[itemNum - 1]) ? code[itemNum - 1] : `[${code[itemNum - 1]}]`,
                     next: line[scanPos + 1].phrase//parseInt(code[itemNum + 1]) ? code[itemNum + 1] : `[${code[itemNum + 1]}]`
                 }
-                console.log("$$$$$$$", item)
+                //console.log("$$$$$$$", item)
                 text_section.push(...((inD) => {
                     switch (inD.current) {
                         case "+":
@@ -239,55 +273,47 @@ global.evaluate = function (line) {
                             return [`sub %eax, ${inD.next}`]
                         case "x":
                             return [
-                                `push %ebx`,
                                 `mov %ebx, ${inD.next}`,
                                 `mul %ebx`,
-                                `pop %ebx`
                             ]
                         case "/":
                             return [
-                                `push %ebx`,
                                 `mov %ebx, ${inD.next}`,
                                 `xor %edx, %edx`,
                                 `div %ebx`,
-                                `pop %ebx`
                             ]
                         case "%":
                             return [
-                                `push %ebx`,
-                                `push %edx`,
                                 `mov %ebx, ${inD.next}`,
+                                `xor %edx, %edx`,
                                 `div %ebx`,
                                 `mov %eax, %edx`,
-                                `pop %edx`,
-                                `pop %ebx`
                             ]
                         case "|":
                             return [
-                                `push %ebx`,
                                 `mov %ebx, ${inD.next}`,
                                 `or %eax, %ebx`,
-                                `pop %ebx`,
                             ]
                         case "<<":
                             return [
-                                `push %ecx`,
                                 `mov %cl, ${inD.next}`,
                                 `shl %eax, %cl`,
-                                `pop %ecx`,
                             ]
                         case ">>":
                             return [
-                                `push %ecx`,
                                 `mov %cl, ${inD.next}`,
                                 `shr %eax, %cl`,
-                                `pop %ecx`,
+                            ]
+                        case "AND":
+                            return [
+                                `mov %ebx, ${inD.next}`,
+                                `and %eax, %ebx`,
                             ]
                     }
                 })(item))
                 scanPos += 2;
             }
-            text_section.push(`mov _mathResult, %eax`, `pop %eax\n`)
+            text_section.push(`mov _mathResult, %eax`, `popa\n`)
             line[itemNo] = { phrase: "_mathResult", type: "assigned" }
             line.splice(itemNo + 1, scanPos - itemNo)
         }
@@ -391,7 +417,7 @@ global.evaluate = function (line) {
         }
         else if (token.phrase == "while") {
             inWhile = true
-            console.log("while pp", line)
+            //console.log("while pp", line)
             text_section.push(
                 `${whileLabel()}:`,
                 `mov %edx, ${n2token().phrase}`,
@@ -426,8 +452,18 @@ global.evaluate = function (line) {
             text_section.push(`${token.phrase} ${line.map(x => x.phrase).slice(itemNo + 1, internal_macros[token.phrase] + 1)}`)
         }
 
+
         //NEEDS TO BE AT THE END
         else if (token.phrase == "return") {
+            //console.log("RET", inFunction.returnType == )
+            if(inFunction.returnType == "void") {
+                text_section.push(
+                    `\n_shift_stack_left_`,
+                    `ret`,
+                    `# ------ EARLY EXIT FUNCTION ------\n`
+                )
+                return
+            }
             text_section.push(
                 `mov %edx, ${n2token().phrase}`,
                 `mov _return_${inFunction.returnType}_, %edx`
@@ -439,7 +475,7 @@ global.evaluate = function (line) {
             // console.log("PFUNC ------", line, itemNo)
             if (token.type == "unassigned" && p1token().type == "type") { // |type unknown(...)| <- function definition
                 // add prototypes?
-                console.log("BAAANNAAAAA", line.slice(itemNo + 2, -1).map(x => x.phrase).filter(x => x != ","))
+                //console.log("BAAANNAAAAA", line.slice(itemNo + 2, -1).map(x => x.phrase).filter(x => x != ","))
                 if (line.at(-1).phrase == ")") {
                     function_createFunction({
                         name: token.phrase,
@@ -493,7 +529,7 @@ global.evaluate = function (line) {
                         cpos++
                     }
                     var pars = line.slice(itemNo + 2, cpos).map(x => x.phrase).filter(x => x != ",")
-                    console.log("******", pars.join())
+                    //console.log("******", pars.join())
                     if (pars == ")") {
                         console.log("yuh")
                         pars = []

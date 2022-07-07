@@ -5,6 +5,8 @@ global.init_section = []
 
 global.macros = ["sizeof"]
 
+global.defines = {}
+
 global.separators = [
     ' ',
     '(',
@@ -59,7 +61,7 @@ global.variableToRegister = function(type, regName) {
 }
 
 global.mathOperations = [
-    "+","/","x","-"
+    "+","/","x","-", "|", "<<", ">>", "%", "AND"
 ]
 
 global.variables = {
@@ -112,6 +114,7 @@ global.typeGuesses = {
     static_float: (p) => p == parseFloat(p),
     string_literal: (p) => p[0] == '"' && p.at(-1) == '"',
     unassigned: (p) => !Object.keys(variables).includes(p),
+    directive: (p) => p[0] == "#",
     unknown: (p) => true,
 }
 
