@@ -31,7 +31,7 @@ See notes.txt for things that are not currently working
 * This means I have built my own tty driver, keyboard handler etc.  
 * This also means that many functions may not work properly  
 * However, you can always make your own drivers
-* Feel free to look into `BODY/lib.s` or [here](https://wiki.osdev.org/Main_Page)
+* Feel free to look into `BODY/data.s` or [here](https://wiki.osdev.org/Main_Page)
 
 # Changelog - 2022
 ## April 24
