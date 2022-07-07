@@ -4,7 +4,7 @@ Compiles into GNU assembly and ran independently on a virtual machine
 Note that NodeJS v16 is needed along with xxoriso, GNU binutils, and QEMU  
 
 compile and run with `./compile.bash example.c`
-
+Output assembly will in a file called `code.s`
 # Special Features:
 This compiler is slightly different than all others, please read this
 * Returns statements must have brackets like a function call
@@ -12,7 +12,7 @@ This compiler is slightly different than all others, please read this
 * All mathematics equations must be placed in `eq(...)` and are evaluated left-to-right in an accumulative manner
   * Do not use parenthesis in these equations
   * For multiplication use `x`
-  * For `and` use `AND`
+  * For `&` use `AND`
 * Functions can be called a pointer (ex. `int *`) and do not need to be casted to a special type
   * An unlimited number of parameters is also supported
   * Do not worry about editor warnings
