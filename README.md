@@ -3,7 +3,7 @@ A bare-bones C compiler built with nodeJS
 Compiles into GNU assembly and ran independently on a virtual machine  
 Note that NodeJS v16 is needed along with xxoriso, GNU binutils, and QEMU  
 
-compile with `./compile.sh example.c`
+compile and run with `./compile.bash example.c`
 
 # Special Features:
 This compiler is slightly different than all others, please read this
