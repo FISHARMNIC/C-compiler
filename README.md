@@ -32,7 +32,7 @@ See notes.txt for things that are not currently working
 * This also means that many functions may not work properly  
 * However, you can always make your own drivers
 * Feel free to look into `BODY/data.s` or [here](https://wiki.osdev.org/Main_Page)
-  * The drives in place are old and *extremely* inefficient
+  * The libraries in place are old and *extremely* inefficient
   * I have written new ones which can be found [here](https://github.com/FISHARMNIC/AssemblyOS/tree/main/BODY/libs)
 
 # Changelog - 2022
