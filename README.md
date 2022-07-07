@@ -76,7 +76,7 @@ See notes.txt for things that are not currently working
 * Allows indirect values on variable init
 
 ## July 7
-* `&` now supported in eq() as `AND`
+* `&` now supported in `eq()` as `AND`
 * Early returns
 * Indirect array modification
 * New precompiler/preprocessor
