@@ -4,18 +4,23 @@ Note that NodeJS v16 is needed along with xxoriso, GNU binutils, and QEMU
 
 compile with `./compile.sh example.c`
 
-# Special Factors:
+# Special Features:
 This compiler is slightly different than all others, please read this
 * Returns statements must have brackets like a function call
-* All mathematics equations must be placed in `eq(...)` and are evaluated left-to-right
+  * Unless it is a void function
+* All mathematics equations must be placed in `eq(...)` and are evaluated left-to-right in an accumulative manner
   * Do not use parenthesis in these equations
-  * Currently, multiplication and binary AND is not working
-    * `x` can be use in place of a `*` symbol for multiplication however
-  * Valid: `jon = eq(bob + 12)`
-* Functions can be called with `int *` and do not need to be casted
+  * For multiplication use `x`
+  * For `and` use `AND`
+* Functions can be called a pointer (ex. `int *`) and do not need to be casted to a special type
   * An unlimited number of parameters is also supported
   * Do not worry about editor warnings
-
+* Pointers can be operated on without casts
+* There is no strict type checking
+* There are 3 types:
+  * char: `1 byte`
+  * short: `2 bytes`
+  * int: `4 bytes`
 
 ---
 See notes.txt for things that are not currently working
@@ -42,10 +47,10 @@ See notes.txt for things that are not currently working
 * Strings no longer need to be passed with `&`
 
 ## May 8
-* Pointer parameters
+* Pointer typed parameters
 * String literals
 * `If` and `If else` statements
-* Unlimited amount of indirect references per line
+* Unlimited amount of indirect memory references per line
 
 ## May 12
 * Casting
@@ -65,5 +70,5 @@ See notes.txt for things that are not currently working
 ## July 7
 * `&` now supported in eq() as `AND`
 * Early returns
-* Added array modification
-* Added `#define` replacement macros
+* Indirect array modification
+* `#define` replacement macros
