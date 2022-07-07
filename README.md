@@ -32,19 +32,19 @@ See notes.txt for things that are not currently working
 ## April 29
 * Pointers fixed
 * Pointer type arrays
-* Math can now be expressed with "eq(...)"
+* Math can now be expressed with `eq(...)`
 
 ## April 30
 * Labels and goto statements
 
 ## May 5
 * While statements included
-* Strings no longer need to be passed with "&"
+* Strings no longer need to be passed with `&`
 
 ## May 8
 * Pointer parameters
 * String literals
-* "If" and "If else" statements
+* `If` and `If else` statements
 * Unlimited amount of indirect references per line
 
 ## May 12
@@ -55,13 +55,15 @@ See notes.txt for things that are not currently working
 * Pointer casting
 * String literals with spaces in them
 * sizeof
-* static allocation "alloc(type, size)"
+* static allocation `alloc(type, size)`
 
 ## July 6
 * Fixed pointer casting
 * Fixed crash on divide/remainder
+* Allows indirect values on variable init
 
 ## July 7
-* "& now supported in eq() as "AND"
+* `&` now supported in eq() as `AND`
 * Early returns
 * Added array modification
+* Added `#define` replacement macros
