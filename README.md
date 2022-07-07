@@ -71,4 +71,6 @@ See notes.txt for things that are not currently working
 * `&` now supported in eq() as `AND`
 * Early returns
 * Indirect array modification
+* New precompiler/preprocessor
 * `#define` replacement macros
+* Comments with `//`
