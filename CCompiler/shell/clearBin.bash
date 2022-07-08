@@ -1,0 +1,1 @@
+rm /home/kali/Documents/CCompiler/BODY/compiled/*
