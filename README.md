@@ -90,3 +90,4 @@ See notes.txt for things that are not currently working
 ## July 9
 * Reworked normal replacement macros
 * Macros with parameters
+* While loops with pointers
