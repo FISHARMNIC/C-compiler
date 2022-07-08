@@ -85,3 +85,7 @@ See notes.txt for things that are not currently working
 * New precompiler/preprocessor
 * `#define` replacement macros
 * Comments with `//`
+
+## July 9
+* Reworked normal replacement macros
+* Macros with parameters
