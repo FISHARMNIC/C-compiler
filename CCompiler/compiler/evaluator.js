@@ -419,7 +419,7 @@ global.evaluate = function (line) {
             inWhile = true
             //console.log("while pp", line)
             text_section.push(
-                `${whileLabel()}:`,
+                //`${whileLabel()}:`,
                 `mov %edx, ${n2token().phrase}`,
                 `push %edx`,
                 `mov %edx, ${n4token().phrase}`,
@@ -470,6 +470,7 @@ global.evaluate = function (line) {
             //console.log("RETURN", line.slice(itemNo + 2, -2).map(x => x.phrase).filter(x => x != ","))
             return;
         }
+
         else if (isDefined(n1token()) ? (n1token().phrase == "(" || (n1token().phrase == ")" && n2token().phrase == "(")) : false) { // current token is a unknown/function call
             // console.log("PFUNC ------", line, itemNo)
             if (token.type == "unassigned" && p1token().type == "type") { // |type unknown(...)| <- function definition
@@ -570,6 +571,12 @@ global.evaluate = function (line) {
                     console.log("ASPLICE", line)
                 }
             } */
+        }
+
+        // --------------------------------------- STRUCTS ------------
+        else if (p1token().phrase == "struct" && p3token() == false) { 
+            parenthesisStack.push({ bracket: "{", type: "struct"})
+            inStructDef = true
         }
         // -------------------------------------- POINTERS --------------------------------------
         else if (token.phrase == "*") { // 
@@ -684,6 +691,9 @@ global.evaluate = function (line) {
                         text_section.push(`${recent.data.finish}:`)
                     }
                     leftOver_if_data = parenthesisStack.at(-1).data.finish
+                    parenthesisStack.pop()
+                } else if (parenthesisStack.at(-1).type == "struct") {
+                    inStructDef = false
                     parenthesisStack.pop()
                 }
             }

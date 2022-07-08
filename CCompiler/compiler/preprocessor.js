@@ -23,8 +23,10 @@ global.preprocess = function () { // takes the current line and applies macros
             defines[name] = mylineC.slice(2, -1).map(x => x.phrase).join(" ")
         }
         return "skip"
-    } else if (mylineC[0].phrase == "/" && mylineC[0].phrase == "/") {
+    } else if (mylineC[0].phrase == "/" && mylineC[0].phrase == "/") { // comment
         return "skip"
+    } else if (mylineC[0].phrase == "while") {
+        text_section.push(whileLabel() + ":")
     }
 
     for (var i = 0; i < lineContents.length; i++) {

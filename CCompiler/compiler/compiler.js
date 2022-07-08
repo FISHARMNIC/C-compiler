@@ -9,6 +9,13 @@ global.code = String(fs.readFileSync(process.argv[2])).split("\n");
 global.lineNumber = 0;
 global.lineContents;
 
+process.on('uncaughtException', err => {
+    console.error(err)
+    crit_error("Unsupported Instruction at location")
+    process.exit(1) //mandatory (as per the Node.js docs)
+  })
+
+
 global.isDefined = function (thing) {
     return (typeof thing !== 'undefined');
 }

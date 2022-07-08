@@ -153,6 +153,8 @@ global.arrobj_includes = function(array, item) {
 global.leftOver_if_data;
 //arrobj_includes(jon, (x) => {x.phrase == "eq"})
 
+global.inStructDef;
+
 global.crit_error = function() {
     console.error(`
 <=========|Critical Error|==========>

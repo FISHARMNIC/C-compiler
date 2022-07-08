@@ -22,7 +22,7 @@ todo:
 - add comparing char arrays with bytes. currently compares extended registers, only compare low registers instead
 - add template macros, like #define bob(x) put_char(x)
 - add running functions inside of eq()
-- add structs
+- ***IMPORTANT*** add structs (already started)
 - check phone reminders for more
 
 if: function (v, cmp, v2) {
