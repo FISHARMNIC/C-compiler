@@ -87,7 +87,7 @@ global.function_createBuffer = function ({ type, name, value, size = -1, pointer
 }
 
 global.function_setVariable = function ({ name, value }) {
-    console.log(clc.red("--- SETTING VARIABLE:"), clc.green(`${name} : ${value}`))
+    //console.log(clc.red("--- SETTING VARIABLE:"), clc.green(`${name} : ${value}`))
     text_section.push(
         `\nmov %edx, ${value}`,
         `mov ${name}, %edx`

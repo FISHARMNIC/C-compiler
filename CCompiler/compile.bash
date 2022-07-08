@@ -1,6 +1,9 @@
 clear
 cd compiler
-node compiler.js "../${1}"
+if (node compiler.js "../${1}") ; then
 cd ../BODY
 ./run.sh "../code.s"
 cd ../
+else
+echo "Compilation Failed"
+fi

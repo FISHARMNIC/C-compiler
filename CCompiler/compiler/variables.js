@@ -6,6 +6,7 @@ global.init_section = []
 global.macros = ["sizeof"]
 
 global.defines = {}
+global.define_fmacros = {}
 
 global.separators = [
     ' ',
@@ -148,5 +149,17 @@ global.arrobj_includes = function(array, item) {
     return -1
 }
 
+
 global.leftOver_if_data;
 //arrobj_includes(jon, (x) => {x.phrase == "eq"})
+
+global.crit_error = function() {
+    console.error(`
+<=========|Critical Error|==========>
+${clc.red(...arguments)}
+${clc.green(lineContents.map(x => x.phrase).join(" "))}
+line: ${clc.blue(lineNumber)}
+word: ${clc.blue(itemNo)}
+<===================================>`)
+    process.exit(1)
+}

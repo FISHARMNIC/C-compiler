@@ -3,7 +3,7 @@ char stack[10];
 int stackpointer = 0;
 #define BG_COLOR 15
 #define FG_COLOR 0
-
+#define fm(x) cum(x)
 void ocolor(char chara, char fg, char bg)
 {
     asm("/* -------- here -------- */");

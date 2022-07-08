@@ -1,7 +1,7 @@
 require("./functions.js")
 
 var gline;
-
+global.itemNo
 function corresponding(line, item, access) {
     return line[item + access];
 }
@@ -27,7 +27,7 @@ global.evaluate = function (line) {
     var n3token;
     var n4token;
 
-    for (var itemNo = Object.keys(line).length - 1; itemNo >= 0; itemNo--) {
+    for (itemNo = Object.keys(line).length - 1; itemNo >= 0; itemNo--) {
         if (line[itemNo].phrase == "//") {
             itemNo = -1
             return
@@ -122,8 +122,8 @@ global.evaluate = function (line) {
                 }
             } else if (p1token().phrase == "]") {
                 // WORK ON HERE 123 QWERTY NEED TO ADD arr[variable] = data;
-                console.log("fjeriu", lineContents)
-                if(p4token().type == "assigned") {
+                //console.log("fjeriu", lineContents)
+                if (p4token().type == "assigned") {
                     var arr = p4token().phrase
                     var ind = p2token().phrase
 
@@ -145,7 +145,7 @@ global.evaluate = function (line) {
                         `pop %ebx`
                     )
                 } else {
-                    console.error("Unable to modify undefined array", p4token().phrase)
+                    crit_error("Unable to modify undefined array", p4token().phrase)
                 }
             }
 
@@ -203,11 +203,11 @@ global.evaluate = function (line) {
                     })
                     return
                 } else {
-                    console.log("undefined variable: ", p1token());
+                    crit_error("undefined variable: ", p1token());
                 }
                 return
             } else { // |known[...]| <- array accesss
-                console.log(p1token().phrase, token.phrase, n1token().phrase, inFunction.isTrue)
+                //console.log(p1token().phrase, token.phrase, n1token().phrase, inFunction.isTrue)
                 if (inFunction.isTrue && isDefined(variables[`_${inFunction.name}_${p1token().phrase}_`])) { // if in a function and you are accessing a parameter
                     var p1 = `_${inFunction.name}_${p1token().phrase}_`
                     console.log("hog rider")
@@ -227,7 +227,7 @@ global.evaluate = function (line) {
         } else if (token.type == "type" && p1token().phrase == "(" && n1token().phrase == ")" && token.phrase != "void") {
             if (isDefined(p2token().phrase) && !macros.includes(p2token().phrase)) {
                 if (n2token().phrase == "(") {
-                    console.log("UNIMPLEMENTED BRACKET CAST")
+                    crit_error("UNIMPLEMENTED BRACKET CAST")
                     process.exit(0)
                     var len = findClosePar() - itemNo
                     text_section.push( // HERE 
@@ -253,7 +253,7 @@ global.evaluate = function (line) {
         else if (token.phrase == "eq") { //evaluation
             var scanPos = itemNo + 3
             text_section.push(
-                `\npusha`, 
+                `\npusha`,
                 `xor %eax, %eax`,
                 `xor %ebx, %ebx`,
                 `xor %ecx, %ecx`,
@@ -456,19 +456,18 @@ global.evaluate = function (line) {
         //NEEDS TO BE AT THE END
         else if (token.phrase == "return") {
             //console.log("RET", inFunction.returnType == )
-            if(inFunction.returnType == "void") {
+            if (inFunction.returnType != "void") {
                 text_section.push(
-                    `\n_shift_stack_left_`,
-                    `ret`,
-                    `# ------ EARLY EXIT FUNCTION ------\n`
+                    `mov %edx, ${n2token().phrase}`,
+                    `mov _return_${inFunction.returnType}_, %edx`
                 )
-                return
             }
             text_section.push(
-                `mov %edx, ${n2token().phrase}`,
-                `mov _return_${inFunction.returnType}_, %edx`
+                `\n_shift_stack_left_`,
+                `ret`,
+                `# ------ EARLY EXIT FUNCTION ------\n`
             )
-            console.log("RETURN", line.slice(itemNo + 2, -2).map(x => x.phrase).filter(x => x != ","))
+            //console.log("RETURN", line.slice(itemNo + 2, -2).map(x => x.phrase).filter(x => x != ","))
             return;
         }
         else if (isDefined(n1token()) ? (n1token().phrase == "(" || (n1token().phrase == ")" && n2token().phrase == "(")) : false) { // current token is a unknown/function call

@@ -3,11 +3,18 @@ global.preprocess = function () { // takes the current line and applies macros
     var mylineC = tokenize(code[lineNumber] + ";")
     if (mylineC[0].phrase == "#define") {
         var name = mylineC[1].phrase
-        if(!name.includes("(")) {
+        if(mylineC[2].phrase == "(") {
+            var buffer = []
+            var item = 3;
+            while(mylineC[item].phrase != ')') {
+                buffer.push(mylineC[item++].phrase)
+            }
+            crit_error("Template Macros not yet supported")
+
+        }
+        else {
             console.log(clc.blue("-> macro"), clc.green(name), mylineC.slice(2, -1).map(x => x.phrase).join(" "))
             defines[name] = mylineC.slice(2, -1).map(x => x.phrase).join(" ")
-        } else {
-            console.error("Template Macros not yet supported")
         }
         return "skip"
     } else if (mylineC[0].phrase == "/" && mylineC[0].phrase == "/") {

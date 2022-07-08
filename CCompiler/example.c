@@ -4,6 +4,7 @@ char bob[5];
 int *quandale;
 int dingle[5] = {0, 1, 2, 3, 4};
 
+// broken
 char jaquavious[] = {'a', 'b', 'c'};
 
 void testFunction(int num1, char num2, int num3)

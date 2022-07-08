@@ -419,23 +419,11 @@ call ostring
 _shift_stack_right_
 
 
-
-_shift_stack_left_
-call oline
-_shift_stack_right_
-
-
 mov %edx, 'Z'
 push %edx
 
 _shift_stack_left_
 call ochar
-_shift_stack_right_
-
-
-
-_shift_stack_left_
-call oline
 _shift_stack_right_
 
 

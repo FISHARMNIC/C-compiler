@@ -21,7 +21,7 @@ for (; lineNumber < code.length; lineNumber++) {
         if(preturn != "skip") {
             if(preturn == "retoken") {
                 lineContents = tokenize(lineContents)
-                console.log("retoken to", lineContents)
+                //console.log("retoken to", lineContents)
             }
             evaluate(lineContents);
         }
