@@ -17,6 +17,7 @@ This compiler is slightly different than all others, please read this
   * An unlimited number of parameters is also supported
   * Do not worry about editor warnings
 * Pointers can be operated on without casts
+* The address of an array can be maniuplated like a pointer
 * There is no strict type checking
 * There are 3 types:
   * char: `1 byte`
