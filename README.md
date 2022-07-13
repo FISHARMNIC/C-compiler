@@ -91,3 +91,7 @@ See notes.txt for things that are not currently working
 * Reworked normal replacement macros
 * Macros with parameters
 * While loops with pointers
+
+## July 13
+* Fixed un-initialized arrays
+* Added stdin: `char getc(void)` `void gets(pointer)` and `void geti(pointer)`
