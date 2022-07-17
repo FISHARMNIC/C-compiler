@@ -25,7 +25,7 @@ This compiler is slightly different than all others, please read this
   * int: `4 bytes`
 
 ---
-See notes.txt for things that are not currently working
+See `notes.txt` for things that are not currently working
 ---
 # More Notes:
 * All assembly runs standalone  
