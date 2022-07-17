@@ -33,9 +33,7 @@ See `notes.txt` for things that are not currently working
 * This also means that many functions may not work properly  
 * However, you can always make your own drivers
 * Feel free to look into `CCompiler/BODY/data.s` or [here](https://wiki.osdev.org/Main_Page)
-  * The libraries in place are old and *extremely* inefficient
-  * A sample vga driver I have been working on can be found in `CCompiler/vga.c`
-  * I have written new ones which can be found [here](https://github.com/FISHARMNIC/AssemblyOS/tree/main/BODY/libs)
+  * A sample tty driver written in C (for my compiler) I have been working on can be found in `CCompiler/old tests/vga.c`
 
 # Changelog - 2022
 ## April 24
