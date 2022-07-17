@@ -95,3 +95,9 @@ See notes.txt for things that are not currently working
 ## July 13
 * Fixed un-initialized arrays
 * Added stdin: `char getc(void)` `void gets(pointer)` and `void geti(pointer)`
+
+## July 17
+* Replaced old library with new one (finally)
+* Added importing system files
+* `char_ln` `string_ln` `int_ln` print a new line afterwards
+* `<stdio.s`> and `<strings.s>`
