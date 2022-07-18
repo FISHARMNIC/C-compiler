@@ -99,3 +99,5 @@ See `notes.txt` for things that are not currently working
 * Added importing system files
 * `char_ln` `string_ln` `int_ln` print a new line afterwards
 * `<stdio.s`> and `<strings.s>`
+* Fixed pointer arrays
+* Re-asigning a pointer with a string
