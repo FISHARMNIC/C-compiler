@@ -23,7 +23,8 @@ global.separators = [
     '*',
     ';',
     ',',
-    ':'
+    ':',
+    'AND'
 ]
 
 global.variableTypes = {

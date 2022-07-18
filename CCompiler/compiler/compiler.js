@@ -35,6 +35,7 @@ for (; lineNumber < code.length; lineNumber++) {
         evaluate(lineContents);
     }
 }
+//console.log(variables)
 fs.writeFileSync("../assembly/code.s",
     `
 .intel_syntax

@@ -13,9 +13,9 @@ todo:
 - ***IMPORTANT*** cannot define string arrays like |char name[] = "..."| in functions
 - ***IMPORTANT*** cannot define undefined integers in functions like "int jon;"
 - add sizeof pointer
-- add macros, but also note the casting could be activated by macros like "mymacro(int)"
 - add comparing char arrays with bytes. currently compares extended registers, only compare low registers instead
 - add running functions inside of eq()
 - ***IMPORTANT*** add structs (already started)
 - ***IMPORTANT*** Cannot return pointers
+- add ++ and --
 - check phone reminders for more

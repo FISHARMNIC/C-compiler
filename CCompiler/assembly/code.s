@@ -5,8 +5,7 @@
 .section .bss
 
 _auto_0: .fill 5, 4
-bob: .long
-quandale: .int 0
+arr: .long
 
 .section .data
 _return_int_: .long 0
@@ -26,39 +25,21 @@ __final_message__: .asciz "program exit with code: "
 .include "../assembly/lib.s"
 
 .include "libs/stdio.s"
-jon: .int 10
-_literal_0: .asciz "foo"
-foo: .long 0
-dingle: .long 0
-_literal_1:
-.int 0
-.int 1
-.int 2
-.int 3
-.int 4
-jaquavious: .long 0
-_literal_2:
-.byte 'a'
-.byte 'b'
-.byte 'c'
-AGE = 15
-_testFunction_num1_: .int 0
-_testFunction_num2_: .byte 0
-_testFunction_num3_: .int 0
-_testFunction_num4_: .int 0
-_literal_4: .asciz " is greater than or equal to 1"
-_literal_3: .long 0
-_literal_6: .asciz " is less than or equal to 2"
-_literal_5: .long 0
-i: .int 65
-.comm _literal_7, 4
+_literal_1: .asciz "hello"
+_literal_0: .long 0
 _temp_reg_0_: .long 0
-_temp_reg_1_: .long 0
 _temp_base_0_: .long 0
-_literal_9: .asciz "3"
+_temp_reg_1_: .long 0
+_temp_base_1_: .long 0
+_literal_3: .asciz "how"
+_literal_2: .long 0
+_literal_5: .asciz "are"
+_literal_4: .long 0
+_literal_7: .asciz "you"
+_literal_6: .long 0
+_literal_9: .asciz "today"
 _literal_8: .long 0
-_literal_11: .asciz "3"
-_literal_10: .long 0
+index: .int 0
 
 .section .text
 
@@ -67,24 +48,20 @@ mov %eax, %esp
 sub %eax, FRAME_OFFSET
 mov _stack_d2_, %eax
 
-lea %edx, _literal_0
-mov foo, %edx
 
 lea %eax, _auto_0
-mov bob, %eax
+mov arr, %eax
 
 lea %edx, _literal_1
-mov dingle, %edx
-lea %edx, _literal_2
-mov jaquavious, %edx
-lea %edx, _literal_4
-mov _literal_3, %edx
-lea %edx, _literal_6
-mov _literal_5, %edx
+mov _literal_0, %edx
+lea %edx, _literal_3
+mov _literal_2, %edx
+lea %edx, _literal_5
+mov _literal_4, %edx
+lea %edx, _literal_7
+mov _literal_6, %edx
 lea %edx, _literal_9
 mov _literal_8, %edx
-lea %edx, _literal_11
-mov _literal_10, %edx
 _shift_stack_left_
 call main
 _shift_stack_right_
@@ -104,101 +81,54 @@ _shift_stack_right_
 
 hlt
 
-testFunction:
+main:
 _shift_stack_right_
-pop %edx
-mov _testFunction_num4_, %edx
-pop %edx
-mov _testFunction_num3_, %edx
-pop %edx
-mov _testFunction_num2_, %dl
-pop %edx
-mov _testFunction_num1_, %edx
-mov %edx, _testFunction_num1_
-push %edx
-
-_shift_stack_left_
-call int_ln
-_shift_stack_right_
-
-mov %edx, _testFunction_num2_
-push %edx
-
-_shift_stack_left_
-call char_ln
-_shift_stack_right_
-
-mov %edx, _testFunction_num3_
-push %edx
-
-_shift_stack_left_
-call string_ln
-_shift_stack_right_
-
-mov %edx, _testFunction_num4_
-push %edx
-
-_shift_stack_left_
-call int_ln
-_shift_stack_right_
-
-
-_shift_stack_left_
-call new_line
-_shift_stack_right_
-
-mov %eax, _testFunction_num1_
-mov %ebx, 2
-cmp %eax, %ebx
-jle _if_0
-jmp _if_1
-_if_0:
-mov %eax, _testFunction_num1_
-mov %ebx, 1
-cmp %eax, %ebx
-jge _if_4
-jmp _if_5
-_if_4:
-mov %edx, _testFunction_num1_
-push %edx
-
-_shift_stack_left_
-call put_int
-_shift_stack_right_
-
-mov %edx, _literal_3
-push %edx
-
-_shift_stack_left_
-call string_ln
-_shift_stack_right_
-
-_if_5:
-mov %edx, _testFunction_num1_
-push %edx
-
-_shift_stack_left_
-call put_int
-_shift_stack_right_
-
-mov %edx, _literal_5
-push %edx
-
-_shift_stack_left_
-call string_ln
-_shift_stack_right_
-
-_if_1:
+_index_array_ arr, 4, 0, _temp_reg_0_, _temp_base_0_
+mov %edx, _temp_base_0_
+push %ebx
+mov %ebx, _literal_0
+mov [%edx], %ebx
+pop %ebx
+_index_array_ arr, 4, 0, _temp_reg_1_, _temp_base_1_
+_index_array_ arr, 4, 1, _temp_reg_0_, _temp_base_0_
+mov %edx, _temp_base_0_
+push %ebx
+mov %ebx, _literal_2
+mov [%edx], %ebx
+pop %ebx
+_index_array_ arr, 4, 1, _temp_reg_1_, _temp_base_1_
+_index_array_ arr, 4, 2, _temp_reg_0_, _temp_base_0_
+mov %edx, _temp_base_0_
+push %ebx
+mov %ebx, _literal_4
+mov [%edx], %ebx
+pop %ebx
+_index_array_ arr, 4, 2, _temp_reg_1_, _temp_base_1_
+_index_array_ arr, 4, 3, _temp_reg_0_, _temp_base_0_
+mov %edx, _temp_base_0_
+push %ebx
+mov %ebx, _literal_6
+mov [%edx], %ebx
+pop %ebx
+_index_array_ arr, 4, 3, _temp_reg_1_, _temp_base_1_
+_index_array_ arr, 4, 4, _temp_reg_0_, _temp_base_0_
+mov %edx, _temp_base_0_
+push %ebx
+mov %ebx, _literal_8
+mov [%edx], %ebx
+pop %ebx
+_index_array_ arr, 4, 4, _temp_reg_1_, _temp_base_1_
 _while_0:
-mov %edx, i
+mov %edx, index
 push %edx
-mov %edx, 75
+mov %edx, 4
 push %edx
-mov %edx, i
+_index_array_ arr, 4, index, _temp_reg_0_, _temp_base_0_
+mov %edx, _temp_reg_0_
 push %edx
 
 _shift_stack_left_
-call put_char
+call string_ln
 _shift_stack_right_
 
 
@@ -206,90 +136,19 @@ pusha
 xor %eax, %eax
 xor %ebx, %ebx
 xor %ecx, %ecx
-mov %eax, i
+mov %eax, index
 add %eax, 1
 mov _mathResult, %eax
 popa
 
 
 mov %edx, _mathResult
-mov i, %edx
+mov index, %edx
 
 pop %edx
 pop %eax
 cmp %eax, %edx
 jl _while_0
-
-_shift_stack_left_
-call new_line
-_shift_stack_right_
-
-mov %edx, 123
-mov _return_int_, %edx
-
-_shift_stack_left_
-ret
-# ------ EARLY EXIT FUNCTION ------
-
-
-_shift_stack_left_
-ret
-# ------ END FUNCTION ------
-
-main:
-_shift_stack_right_
-lea %edx, _literal_7
-mov _literal_7, %edx
-
-mov %edx, _literal_7
-mov quandale, %edx
-mov %edx, quandale
-mov %ecx, '2'
-mov [%edx], %cl
-
-mov %edx, 20
-mov jon, %edx
-
-pusha
-xor %eax, %eax
-xor %ebx, %ebx
-xor %ecx, %ecx
-mov %eax, jon
-mov %ebx, 5
-xor %edx, %edx
-div %ebx
-mov _mathResult, %eax
-popa
-
-movw _temp_reg_0_, 0
-mov %edx, quandale
-mov %dl, [%edx]
-mov _temp_reg_0_, %dl
-_index_array_ dingle, 4, 1, _temp_reg_1_, _temp_base_0_
-mov %edx, _temp_reg_1_
-push %edx
-mov %edx, _temp_reg_0_
-push %edx
-mov %edx, _literal_8
-push %edx
-mov %edx, _mathResult
-push %edx
-
-_shift_stack_left_
-call testFunction
-_shift_stack_right_
-
-mov %edx, _return_int_
-push %edx
-mov %edx, _literal_10
-push %edx
-mov %edx, _mathResult
-push %edx
-
-_shift_stack_left_
-call put_int
-_shift_stack_right_
-
 mov %edx, 0
 mov _return_int_, %edx
 

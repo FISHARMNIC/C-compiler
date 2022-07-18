@@ -73,6 +73,7 @@ global.evaluate = function (line) {
         }
 
         if (token.phrase == "=") { // ------------------- ASSIGNMENT -------------------
+
             if (p1token().type == "unassigned") { // |type unknown = ...| <- variable definition
                 if (p2token().type == "type") {
                     function_createVariable({
@@ -108,7 +109,34 @@ global.evaluate = function (line) {
                 else {
                     console.log("undefined:", p1token().phrase)
                 }
-            } else if (p1token().type == "assigned") { // |known = ...| <- variable definition
+                return
+            }
+
+            if (
+                (p1token().type == "assigned" && n1token().phrase[0] == '"') ||
+                (p1token().phrase == "]" && p3token().type == "assigned" && n1token().phrase[0] == '"') ||
+                (p3token().phrase == "[" && p4token().type == "assigned" && n1token().phrase[0] == '"')
+            ) {
+                var useLiteral = stringLiteralLabel(1)
+                function_createBuffer({
+                    type: "char",
+                    name: useLiteral,
+                    value: n1token().phrase
+                })
+                // function_createVariable({
+                //     name: useLiteral,
+                //     type: "char",
+                //     pointer: true,
+                //     value: getDynaLabel()
+                // })
+                line[itemNo + 1] = {
+                    phrase: useLiteral,
+                    type: "assigned"
+                }
+                console.log(line)
+            }
+
+            if (p1token().type == "assigned") { // |known = ...| <- variable definition
                 if (isDefined(p2token()) && p2token().phrase == "*") { // |*known = ... | <- value at pointer redefinition
                     function_setPointer({
                         name: p1token().phrase,
@@ -128,16 +156,19 @@ global.evaluate = function (line) {
                     var ind = p2token().phrase
 
                     var tempreg = "%ebx"
-                    switch (variables[n1token().phrase].type) {
-                        case "char":
-                            tempreg = "%bl"
-                            break
-                        case "short":
-                            tempreg = "%bx"
+                    console.log("$$$$$$$$$!!!!!", variables[arr])
+                    if (!variables[arr].pointer) { // not originally here
+                        switch (variables[arr].type) {   // 2022 WAS variables[n1token().phrase].type HERE
+                            case "char":
+                                tempreg = "%bl"
+                                break
+                            case "short":
+                                tempreg = "%bx"
+                        }
                     }
 
                     text_section.push(
-                        `_index_array_ ${arr}, ${variableSizes[variables[p4token().phrase].type]}, ${ind}, ${use_tempreg(1)}, ${use_tempbase()}`,
+                        `_index_array_ ${arr}, ${variables[arr].pointer ? 4 : variableSizes[variables[arr].type]}, ${ind}, ${use_tempreg(1)}, ${use_tempbase()}`,
                         `mov %edx, ${use_tempbase(1)}`,
                         `push %ebx`,
                         `mov ${tempreg}, ${n1token().phrase}`,
@@ -208,12 +239,14 @@ global.evaluate = function (line) {
                 return
             } else { // |known[...]| <- array accesss
                 //console.log(p1token().phrase, token.phrase, n1token().phrase, inFunction.isTrue)
+                var alignment = variables[p1token().phrase].pointer ? 4 : variableSizes[variables[p1token().phrase].type]
                 if (inFunction.isTrue && isDefined(variables[`_${inFunction.name}_${p1token().phrase}_`])) { // if in a function and you are accessing a parameter
                     var p1 = `_${inFunction.name}_${p1token().phrase}_`
+                    alignment = variables[p1].pointer ? 4 : variableSizes[variables[p1].type]
                     console.log("hog rider")
-                    text_section.push(`_index_array_ ${p1}, ${variableSizes[variables[p1].type]}, ${n1token().phrase}, ${use_tempreg()}, ${use_tempbase(1)}`)
+                    text_section.push(`_index_array_ ${p1}, ${alignment}, ${n1token().phrase}, ${use_tempreg()}, ${use_tempbase(1)}`)
                 } else {
-                    text_section.push(`_index_array_ ${p1token().phrase}, ${variableSizes[variables[p1token().phrase].type]}, ${n1token().phrase}, ${use_tempreg()}, ${use_tempbase(1)}`)
+                    text_section.push(`_index_array_ ${p1token().phrase}, ${alignment}, ${n1token().phrase}, ${use_tempreg()}, ${use_tempbase(1)}`)
                 }
 
                 line[itemNo - 1] = {
@@ -338,6 +371,27 @@ global.evaluate = function (line) {
             line[itemNo] = { phrase: variableSizes[n2token().phrase], type: "static_integer" }
             line.splice(itemNo + 1, 2)
         }
+
+        // else if (token.phrase == "+" && n1token().phrase == "+") {
+        //     let _tempreg = "%edx"
+        //     if(p1token().type == "assigned") { // postfix x++
+        //         switch (variables[p1token().phrase].type) {
+        //             case "char":
+        //                 _tempreg = "%dl"
+        //                 break
+        //             case "short":
+        //                 _tempreg = "%dx"
+        //         }
+        //     } else { // prefix ++x
+        //         switch (variables[p1token().phrase].type) {
+        //             case "char":
+        //                 _tempreg = "%dl"
+        //                 break
+        //             case "short":
+        //                 _tempreg = "%dx"
+        //         }
+        //     }
+        // }
 
         else if (token.phrase == "if") {
             // if ( p1 cmp p2 ) {?
@@ -574,8 +628,8 @@ global.evaluate = function (line) {
         }
 
         // --------------------------------------- STRUCTS ------------
-        else if (p1token().phrase == "struct" && p3token() == false) { 
-            parenthesisStack.push({ bracket: "{", type: "struct"})
+        else if (p1token().phrase == "struct" && p3token() == false) {
+            parenthesisStack.push({ bracket: "{", type: "struct" })
             inStructDef = true
         }
         // -------------------------------------- POINTERS --------------------------------------
