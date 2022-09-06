@@ -1,5 +1,5 @@
 # C-compiler
-A bare-bones C compiler built with nodeJS  
+A bare-bones C compiler built in Javascript
 Compiles into GNU assembly and ran independently on a virtual machine  
 Note that NodeJS v16 is needed along with xxoriso, GNU binutils, and QEMU  
 
