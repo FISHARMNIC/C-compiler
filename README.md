@@ -1,5 +1,5 @@
 # C-compiler
-A bare-bones C compiler built in Javascript
+A bare-bones C compiler built in Javascript (~1000 lines)  
 Compiles into GNU assembly and ran independently on a virtual machine  
 Note that NodeJS v16 is needed along with xxoriso, GNU binutils, and QEMU  
 
@@ -37,7 +37,7 @@ See `notes.txt` for things that are not currently working
 
 # Changelog - 2022
 ## April 24
-* First stge of the compiler is up and running
+* First stage of the compiler is up and running
 * Definition of variables, pointers, buffers, etc.
 
 ## April 27
